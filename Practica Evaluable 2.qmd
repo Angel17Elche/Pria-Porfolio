@@ -1,0 +1,308 @@
+---
+title: "Distribucion Logistica"
+author: "Ángel"
+format: pdf
+editor: visual
+---
+
+#### 
+
+# 1. Distribución Logística
+
+### 1.1 Función Logística y sus Casos de Uso
+
+La distribución logística es una distribución de probabilidad continua que se utiliza en diversas áreas, como la estadística, la economía, la biología, entre otros. Se caracteriza por su forma de "S" simétrica, similar a la distribución normal pero con colas más pesadas.
+
+La función de densidad de probabilidad (PDF) de la distribución logística se define como:
+
+f(x∣μ,s)=2e−(x−μ)/​s(1+e−(x−μ)/s)2
+
+Donde:
+
+-   μ es la media de la distribución.
+
+-   s es un parámetro de escala que controla la forma de la curva.
+
+**Casos de Uso:**
+
+-   **Modelado de fenómenos naturales:** Se utiliza en biología para modelar el crecimiento de poblaciones, la distribución de tamaños de organismos, entre otros.
+
+-   **En economía:** En análisis de series temporales para modelar el crecimiento económico o la distribución de ingresos.
+
+-   **Machine Learning:** En algoritmos de regresión logística para clasificación binaria.
+
+**Teoría de la fiabilidad:** Para modelar la vida útil de sistemas o productos.
+
+### 1.2 Representación Gráfica de la Función de Densidad
+
+La representación gráfica de la función de densidad de la distribución logística muestra su característica forma de "S" simétrica alrededor de la media.
+
+```{r}
+df <- read.csv('C:\\Users\\angel\\Desktop\\csv.csv')
+library(dplyr)
+library(gapminder)
+library(ggplot2)
+
+x <- df$Poder
+
+logistica_densidad <- function(x, mu, s) {
+  exp(-(x - mu) / s) / (s * (1 + exp(-(x - mu) / s))^2)
+}
+
+media <- mean(df$Locura)
+media
+
+mu <- 0  
+s <- 1  
+
+x_values <- seq(-9, 9, length.out = 1000)
+
+
+densidad_values <- logistica_densidad(x_values, mu, s)
+
+
+plot(x_values, densidad_values, type = "l", col = "blue", lwd = 2,
+     xlab = "x", ylab = "Densidad", main = "Distribución Logística")
+
+# Calcula la nueva columna z directamente en el data frame
+df$z <- exp(-(df$Locura - mu) / s) / (s * (1 + exp(-(df$Locura - mu) / s))^2)
+
+# Luego, utiliza ggplot para graficar la función de densidad y el área sombreada
+ggplot(data = df) + 
+  geom_line(aes(x =  Locura, y = z), color = "blue", size = 3) +
+  geom_area(data = subset(df, (z >= 2 & z <= 2)),
+            aes(x = Locura, y = z),
+            fill = "grey", alpha = 0.5) +
+  scale_x_continuous(breaks = -3:3) +
+  labs(
+    title = bquote("Función de densidad Normal Tipificada: " ~ mu ~ "= 0, " ~ sigma ~ "= 1"),
+    x = "altura escalada (z-score)",
+    y = "densidad") +
+  theme_bw()
+```
+
+### 1.3 Explica y pon ejemplos de cómo se generan números aleatorios con la función logística.
+
+Para generar números aleatorios que sigan una distribución logística en R, se utiliza la función **`rlogis()`** que está incorporada en R y que toma como argumentos el número de valores aleatorios a generar y los parámetros de la distribución logística.
+
+```{r}
+# Parámetros de la distribución logística
+mu <- 3  # Ubicación de la distribución
+s <- 1   # Parámetro de escala
+
+# Generar 1000 números aleatorios con distribución logística
+random_logistic <- rlogis(1000, location = mu, scale = s)
+
+# Visualizar un histograma de los números aleatorios generados
+hist(random_logistic, breaks = 30, col = "blue", main = "Distribución Logística", xlab = "Valor")
+
+```
+
+En este código, **`rlogis()`** genera 1000 números aleatorios que siguen una distribución logística con los parámetros de ubicación (**`location`**) y escala (**`scale`**) especificados. Después, se utiliza **`hist()`** para crear un histograma que muestra la distribución de estos números aleatorios generados.
+
+### 1.4 Realiza un par de ejemplos de cálculo de probabilidades a partir de la función de distribución acumulada.
+
+Para calcular probabilidades a partir de la función de distribución acumulada (CDF) de la distribución logística en R, puedes usar la función **`plogis()`**. Esta función calcula la probabilidad acumulada hasta un cierto valor dado en la distribución logística.
+
+```{r}
+# Parámetros de la distribución logística
+mu <- 0  # Ubicación de la distribución
+s <- 1   # Parámetro de escala
+
+# Valor para el que se desea calcular la probabilidad P(X < valor)
+valor <- 1.5
+
+# Calcular la probabilidad P(X < valor) usando la función de distribución acumulada
+probabilidad <- plogis(valor, location = mu, scale = s)
+
+# Mostrar el resultado
+cat("La probabilidad de que X sea menor que", valor, "es:", probabilidad, "\n")
+
+```
+
+```{r}
+# Parámetros de la distribución logística
+mu <- 0  # Ubicación de la distribución
+s <- 1   # Parámetro de escala
+
+# Valores límite para calcular la probabilidad P(1 < X < 2)
+valor_inferior <- 1
+valor_superior <- 2
+
+# Calcular la probabilidad P(valor_inferior < X < valor_superior)
+probabilidad_entre <- plogis(valor_superior, location = mu, scale = s) - plogis(valor_inferior, location = mu, scale = s)
+
+# Mostrar el resultado
+cat("La probabilidad de que X esté entre", valor_inferior, "y", valor_superior, "es:", probabilidad_entre, "\n")
+
+```
+
+# **2. Distribución t-student**
+
+### 2.1 Siguiendo un esquema similar al de los apuntes de las distribuciones de probabilidad contínuas, elabora un documento donde se describa la función t-student y sus casos de uso.
+
+La distribución t-Student es una distribución de probabilidad que surge en el contexto de la inferencia estadística. Se utiliza comúnmente cuando se trabaja con muestras pequeñas y no se conoce la desviación estándar de la población. Fue introducida por William Sealy Gosset en 1908 y se utiliza en pruebas de hipótesis y en la construcción de intervalos de confianza.
+
+La función de densidad de probabilidad (pdf) de la distribución t-Student con ν grados de libertad está dada por:
+
+f(t;v) = (r((v+1)/2)/sqrt v \* pi \* r(v/2)) \* (1 + t\^2 / v) \^v+1/2
+
+Donde Γ es la función gamma y t es la variable aleatoria.
+
+**Casos de uso:**
+
+-   Comparación de medias de dos muestras pequeñas.
+
+-   Estimación de intervalos de confianza para la media poblacional.
+
+-   Pruebas de hipótesis sobre la media poblacional cuando la desviación estándar poblacional es desconocida.
+
+### 2.2 Realiza la representación gráfica de su función de densidad.
+
+A continuación, se presenta la representación gráfica de la función de densidad de probabilidad para la distribución t-Student con diferentes grados de libertad (ν).
+
+```{r}
+library(ggplot2)
+
+# Función de densidad de probabilidad para t-Student
+t_student_pdf <- function(x, nu) {
+  dt(x, df = nu)  # dt es la función de densidad de probabilidad para t-Student en R
+}
+
+# Gráfica
+x <- seq(-4, 4, length.out = 1000)
+Grado_Libertad <- c(2, 5, 15, 25)
+
+# Crear un data frame para ggplot
+df <- data.frame(x = rep(x, times = length(Grado_Libertad)),
+                 nu = rep(Grado_Libertad, each = length(x)),
+                 y = t_student_pdf(rep(x, times = length(Grado_Libertad)), rep(Grado_Libertad, each = length(x))))
+
+# Gráfico
+ggplot(df, aes(x = x, y = y, color = factor(nu))) +
+  geom_line() +
+  labs(title = "Distribución t-Student",
+       x = "t",
+       y = "Densidad de probabilidad") +
+  theme_minimal()
+```
+
+### 2.3 Explica y pon ejemplos de cómo se generan números aleatorios.
+
+```{r}
+# Generación de números aleatorios t-Student
+set.seed(123)  # Establecer semilla para reproducibilidad
+degrees_of_freedom <- 10
+random_numbers <- rt(1000, df = degrees_of_freedom)
+
+# Histograma de los números aleatorios generados
+hist(random_numbers, breaks = 30, probability = TRUE, col = 'blue', alpha = 0.7,
+     main = 'Generación de números aleatorios t-Student',
+     xlab = 'Valor',
+     ylab = 'Frecuencia relativa')
+```
+
+### 2.4 Realiza un par de ejemplos de cálculo de probabilidades a partir de la función de distribución acumulada.
+
+```{r}
+# Ejemplo de cálculo de probabilidad P(T <= t) con t=1.5 y ν=10
+probabilidad <- pt(1.5, df = 10)
+cat('P(T <= 1.5) con ν=10:', probabilidad, '\n')
+
+# Ejemplo de cálculo de probabilidad P(-1.8 <= T <= 2.5) con ν=15
+Rango_Probabilidad <- pt(2.5, df = 15) - pt(-1.8, df = 15)
+cat('P(-1.8 <= T <= 2.5) con ν=15:', Rango_Probabilidad, '\n')
+```
+
+### 2.5 Realiza una comparativa visual entre la normal y la t-student, representando la normal frente a la t-student para 2, 5, 15 y 25 grados de libertad de la t-student, o los que consideres para una visualización didáctica.
+
+```{r}
+# Gráfico comparativo entre normal y t-Student para diferentes grados de libertad
+x <- seq(-4, 4, length.out = 1000)
+
+# Crear un data frame para ggplot
+df_2.5 <- data.frame(x = rep(x, times = length(degrees_of_freedom) + 1),
+                         distribution = rep(c("Normal", rep("t-Student", length(degrees_of_freedom))), each = length(x)))
+
+# Agregar las curvas de densidad
+df_2.5$y <- ifelse(df_2.5$distribution == "Normal", dnorm(df_2.5$x), t_student_pdf(df_2.5$x, rep(degrees_of_freedom, each = length(x))))
+
+# Gráfico
+ggplot(df_2.5, aes(x = x, y = y, color = distribution)) +
+  geom_line() +
+  labs(title = 'Comparativa entre Normal y t-Student',
+       x = 'Valor',
+       y = 'Densidad de probabilidad') +
+  theme_minimal()
+```
+
+# **3. Distribución uniforme discreta**
+
+Implementa tu versión de las funciones `punifd`, `runifd`, y `dunifd`
+
+```{r}
+# Función para generar valores aleatorios con distribución uniforme discreta
+runifd <- function(n, a, b) {
+  if (missing(n) || missing(a) || missing(b)) {
+    stop("Se requieren los parámetros 'n', 'a' y 'b'")
+  }
+  if (n <= 0) {
+    return(numeric(0))
+  }
+  if (!is.integer(a) || !is.integer(b)) {
+    stop("Los límites 'a' y 'b' deben ser enteros")
+  }
+  
+  return(sample(a:b, n, replace = TRUE))
+}
+
+# Función para calcular la función de masa de probabilidad (PMF) para distribución uniforme discreta
+dunifd <- function(x, a, b) {
+  if (missing(x) || missing(a) || missing(b)) {
+    stop("Se requieren los parámetros 'x', 'a' y 'b'")
+  }
+  if (!is.integer(a) || !is.integer(b)) {
+    stop("Los límites 'a' y 'b' deben ser enteros")
+  }
+  
+  ifelse(x >= a & x <= b, 1 / (b - a + 1), 0)
+}
+
+# Función para calcular la función de distribución acumulada (CDF) para distribución uniforme discreta
+punifd <- function(q, a, b) {
+  if (missing(q) || missing(a) || missing(b)) {
+    stop("Se requieren los parámetros 'q', 'a' y 'b'")
+  }
+  if (!is.integer(a) || !is.integer(b)) {
+    stop("Los límites 'a' y 'b' deben ser enteros")
+  }
+  
+  if (q < a) {
+    return(0)
+  } else if (q >= b) {
+    return(1)
+  } else {
+    return((q - a + 1) / (b - a + 1))
+  }
+}
+
+# Ejemplo de uso
+set.seed(123)  # Establecer una semilla para reproducibilidad de los resultados
+a <- 2
+b <- 7
+
+# Generar 10 valores aleatorios con distribución uniforme discreta
+random_values <- runifd(10, a, b)
+print(random_values)
+
+# Calcular la PMF para la secuencia 0:10
+sapply(0:10, function(x) dunifd(x, a, b))
+
+
+# Calcular la CDF para q = 4
+cdf_q4 <- punifd(4, a, b)
+print(cdf_q4)
+
+```
+
+# 
