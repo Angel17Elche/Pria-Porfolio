@@ -1,5 +1,5 @@
 ---
-title: "Practica evaluable 2"
+  title: "Practica 4 ggradar"
 output: pdf_document
 date: "2023-11-15"
 ---
@@ -66,14 +66,14 @@ imagett <- function(baraja, pers, images) {
 
   df_filtrado <- baraja[baraja$Nombre %in% pers, ]
 
-  # Crear una nueva columna "Imagen" y asignar las rutas
+  # Crear una nueva columna "Imagen" y asignamos las rutas
   df_filtrado <- df_filtrado %>%
     mutate(Imagen = rutas_imagenes[match(Nombre, nombres_personajes)])
 
   return(df_filtrado)
 }
 
-# Llamada a la función con tus datos
+# Llamada a la función con mis datos
 df_filtrado <- imagett(df, c("Ongombo" , 'La chusa', 'Violeta', 'Javi', 'Estela Reynolds'), c("C:\\Users\\angel\\Pictures\\LQSA\\Ongombo.jpg" , "C:\\Users\\angel\\Pictures\\LQSA\\chusa.jpg" , "C:\\Users\\angel\\Pictures\\LQSA\\violeta.jpg" , "C:\\Users\\angel\\Pictures\\LQSA\\javi.jpg" , "C:\\Users\\angel\\Pictures\\LQSA\\estela.jpg"))
 print(df_filtrado)
 
