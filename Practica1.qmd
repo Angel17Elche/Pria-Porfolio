@@ -1,0 +1,86 @@
+---
+title: 'Practica 1'
+author: 'Angel'
+format: html
+editor: visual
+---
+
+```{r}
+print('Vector')
+
+v1_50 <- 1:50
+print(v1_50)
+
+v1_50 <- seq(1:50)
+print(v1_50)
+
+v1_50 <- seq(0.5, 10, by=0.5)
+print(v1_50)
+
+tam_v1_50h <- length(v1_50)
+print(tam_v1_50h)
+
+tipo_length <- class(tam_v1_50h)
+print(tipo_length)
+
+v1_22_10 <- seq(1, 22, by=2)
+print(v1_22_10)
+
+vrep_1x4 <- rep(1, times=4)
+print(vrep_1x4)
+
+vrep <- rep(1:5, times=3)
+print(vrep)
+
+
+
+print('Matrices')
+
+matriz <- matrix(1:9, nrow = 3, byrow = TRUE)
+print(matriz)
+
+matriz <- matrix(1:9, nrow = 3, byrow = FALSE)
+print(matriz)
+
+print('Cine')
+
+the_creator <- c(702465, 1, 702465)
+barbie <- c(61351, 11, 33935231)
+campeonesx <- c(235394, 7, 1732961)
+
+
+cine_29_01_oct
+cine_29_01_oct<-matrix(c(the_creator,barbie,campeonesx) , nrow = 3, ncol = 4, byrow = T )
+
+nombres_columna <- c('rec_semana','semanas_cart','rec_total','recweek_%')
+filas_nombres <- c("The Creator", "Barbie", "Campeonesx")
+
+colnames(cine_29_01_oct) <- nombres_columna
+rownames(cine_29_01_oct) <- filas_nombres
+
+
+typeof(cine_29_01_oct)
+class(cine_29_01_oct)
+
+typeof(cine_29_01_oct[1,1])
+class(cine_29_01_oct[1,1])
+
+
+
+cine_29_01_oct
+
+
+print('Factores')
+
+animals_vector <- c("Elephant", "Giraffe", "Donkey", "Horse")
+factor_animals_vector <- factor(animals_vector, levels = c("Elephant", "Giraffe", "Donkey", "Horse"))
+print(factor_animals_vector)
+
+temperature_vector <- c("High", "Low", "High","Low", "Medium")
+factor_temperature_vector <- factor(temperature_vector, levels = c("Low", "Medium", "High"))
+print(factor_temperature_vector)
+
+summary(temperature_vector)
+summary(factor_temperature_vector)
+
+```

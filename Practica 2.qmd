@@ -1,0 +1,161 @@
+---
+title: 'Practica 1'
+author: 'Angel'
+format: html
+editor: visual
+---
+
+```{r}
+
+install.packages("tidyverse")
+
+library(dplyr)
+library(tidyverse)
+library(dslabs)
+
+print('Administración del entorno')
+
+mi_var1 <-1
+mi_var2 <- "dos"
+mi_var3 <- "III"
+
+ls(mi_var1)
+ls()
+.var_oculta <- "no me ves"
+.var_oculta
+
+
+
+v_rnd <- sample(1:3, size = 3, replace = TRUE, prob = NULL )
+
+ls(mi_var1)
+
+  
+  
+notas <- c(3, 0, 4, 6, 8, 10, 9, 8, 7, 7, 6, 7, 5)
+calificaciones <-c("S","S","S","A","N","MH","Sb","N","N","N","A","N","A")
+niveles = c("S", "A", "N", "Sb", "MH")
+etiquetas = c("Suspenso", "Aprobado", "Notable", "Sobresaliente", "Matrícula de Honor")
+fcalif <- factor(calificaciones, levels = niveles, labels = etiquetas)
+
+print(fcalif)
+
+# alumnos suspensos
+mean
+mean (notas[fcalif == "Suspenso"])
+
+# alumnos aprobados
+mean
+mean (notas[fcalif == "Aprobado"])
+
+# alumnos con notable
+mean(notas[fcalif == "Notable"])
+
+library(gapminder)
+str(gapminder)
+#6 filas
+
+head(mtcars, 2)
+
+tail(mtcars, 10)
+
+str(mtcars)
+
+mesid <- 1:12
+
+mesnombre <- c("Enero", "Febrero",'Mar','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre')
+
+mescorto <- substr(mesnombre, 1, 3)
+mesesdf <- data.frame(MesId = mesid, NombreMes= mesnombre, MesCorto = mescorto)
+print(mesesdf)
+
+
+diasemanaid <- 1:7
+
+diasemananombre <- c('Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo')
+
+diasemananombrecorto <-substr(diasemananombre, 1, 2)
+
+diasemanaletra <- substr(diasemananombre,1, 1)
+
+
+diasemanadf <- data.frame(DiaID = diasemanaid, NombreDia = diasemananombre, DiaCorto = diasemananombrecorto, DiaLetra = diasemanaletra)
+
+print(diasemanadf)
+#falta el TRUE
+
+mi_vector <-1:20
+mi_matriz <-matrix(1:9,ncol=3,byrow=TRUE)
+mi_df <- mtcars[1:5,]
+mi_lista <- list(MiV = mi_vector, MiM = mi_matriz, MiDF = mi_df)
+
+#A partir del vector de nombres dado, utiliza la función names() para nombrar los elementos de la lista anterior e imprime la lista
+
+v_nombres <- c("Vec", "Mat", "Df")
+
+names(mi_lista) <- v_nombres
+
+print(mi_lista)
+
+
+
+print('Funciones')
+
+
+print("Formulas 3.1")
+
+ec_2grado_tipo <- function(a, b, c) {
+  salida <- NA
+  if(a != 0){
+    discriminante <- b^2 - 4 * a * c
+    if(discriminante > 0) salida <- 2
+    else if(discriminante < 0) salida <- 0
+    else salida <- 1
+  }
+  return(salida)
+}
+
+ec_2grado_tipo(a=2,b=5,c=0)
+ec_2grado_tipo(a=1,b=2,c=1)
+ec_2grado_tipo(a=1,b=2,c=3)
+ec_2grado_tipo(a=0,b=2,c=0)
+
+print("Formulas 3.2")
+
+ec_2grado_solr <- function(a, b, c) {
+  discriminante <- b^2 - 4 * a * c
+  if(a == 0 | discriminante < 0)salida <- NA
+  else{
+    salida <- numeric(2)
+    salida[1] <- (-b + sqrt(discriminante)) / (2 * a)
+    salida[2] <- (-b - sqrt(discriminante)) / (2 * a)
+  }
+  return(salida)
+}
+ec_2grado_solr(a=2,b=5,c=0)
+ec_2grado_solr(a=1,b=2,c=1)
+ec_2grado_solr(a=1,b=2,c=3)
+ec_2grado_solr(a=0,b=2,c=0)
+
+print("Formulas 3.3")
+
+ec_2grado <- function(a,b,c) {
+  discriminante <- b^2 - 4 * a * c
+  salida <- numeric(2)
+  if (discriminante < 0) {
+    salida[1] <- (-b + sqrt(as.complex(discriminante))) / (2 * a)
+    salida[2] <- (-b - sqrt(as.complex(discriminante))) / (2 * a)
+  } else{
+    salida[1] <- (-b + sqrt(discriminante)) / (2 * a)
+    salida[2] <- (-b - sqrt(discriminante)) / (2 * a)
+  }
+  return(salida)
+}
+
+ec_2grado(a=2,b=5,c=0)
+ec_2grado(a=1,b=2,c=1)
+ec_2grado(a=1,b=0,c=1)
+ec_2grado(a=0,b=2,c=0)
+
+
+```
