@@ -1,0 +1,326 @@
+---
+title: "Aprendiendo R"
+author: "Ángel García Merenciano"
+format: pptx
+editor: visual
+---
+
+# Aprendiendo R
+
+### -Para asignar variables:
+
+```{r}
+a <- 2
+b <- 5
+```
+
+Aquí podemos ver como a la variable 'a' se le asigna el valor '2' y con 'b' es igual.
+
+### -Para añadir texto que no se interpreta, sino que son comentario:
+
+```{r}
+#Esto es un comentario
+```
+
+-Aquí podemos ver que añadiendo'\#' podemos escribir sin que se ejecute
+
+-Para unir o concatenar cosas usaremos paste()
+
+```{r}
+a <- 2
+b <- 5
+paste(a,b)
+```
+
+usaremos ',' para agregar una variable  
+
+### -Para saber que estamos tratando usaremos:
+
+```{r}
+x <- 10.5 
+class(x)
+
+```
+
+### -Palabras reservadas: if -- true --false -- NA
+
+### -Funciones numéricas:
+
+Abs()  =  valor absoluto, sqrt() = raíz cuadrada ,  trunc() = ,round() =
+
+### -Funciones numéricas: Funciones de caracteres.
+
+Toupper(cadena) = todo en mayus , tolower(cadena) = todo en minus,
+
+### -Para saber que clase es cada variable escribiremos class() y dentro del paréntesis la variable asignada
+
+### -Para cambiar funciones as.numeric() - as.integer() - as.complex()
+
+### -Para cargar un fichero en Rstudio crearemos un archivo .qmd y haremos click en el símbolo +c dentro de las comillas pondremos:
+
+```{r}
+df <- read.csv('C:\\Users\\angel\\Desktop\\csv.csv')
+```
+
+### -Para cargar una librería, escribiremos library(ggplot2), library(dplyr),library(tidyverse),library(dslabs). Estas son la librerías útiles.
+
+### -Para ocultar una variable escribiremos un . delante de nuestra variable:
+
+```{r}
+.var_oculta <- "no me ves"
+
+#con ls() puedes ver las variables que tienes
+```
+
+### -Para sacar la media utilizaremos media \<- mean(df\$variable) para sacar la media del df = dataframe, para sacar la mediana \<- median(df\$variable) para sacar la mediana.
+
+### -Para sacar la moda primero nombraremos la tabla a crear y después la moda:
+
+```{r}
+tabla frecuencias <- table(df$variable)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+
+```
+
+### -Para sacar la varianza usaremos:
+
+```{r}
+varianza_R <- var(df$Poder)
+varianza_R
+
+```
+
+### -Para sacar el valor que hay en un rango lo haremos mediante : max(df\$Locura) - min(df\$Locura); y para sacar el valor max y min con: range(df\$Poder)
+
+### -Para definir una secuencia:
+
+```{r}
+seq(0.5, 10, by=0.5)
+```
+
+### -Vectores:
+
+Para crear un vector:
+
+```{r}
+v1_50 <- 1:50
+ print(v1_50)
+#Para sacar su longitud y clase: 
+tam_v1_50h <- length(v1_50)
+tipo_length <- class(tam_v1_50h)
+```
+
+### -Matrices:
+
+Para realizar una matriz:
+
+```{r}
+matriz <- matrix(1:9, nrow = 3, byrow = TRUE)
+
+print(matriz)
+#Para crear las columnas y las filas con nombres personalizados lo haremos así:
+nombres_columna <- c('rec_semana','semanas_cart','rec_total','recweek_%')
+
+filas_nombres <- c("The Creator", "Barbie", "Campeonesx")
+
+colnames(cine_29_01_oct) <- nombres_columna
+
+rownames(cine_29_01_oct) <- filas_nombres
+```
+
+### -Factores:
+
+Para crear un factor con algunas variables:
+
+```{r}
+factor_animals_vector <- factor (animals_vector, levels = c("Elephant", "Giraffe", "Donkey", "Horse"))
+
+print(factor_animals_vector)
+
+Para ordenar una secuencia de datos: temperature_vector <- c("High", "Low", "High","Low", "Medium")
+
+factor_temperature_vector <- factor (temperature_vector, levels = c("Low", "Medium", "High"))
+
+print(factor_temperature_vector)
+```
+
+### Funciones:
+
+-Para crear una función debemos darle un nombre y nombrarla con function darle argumentos () y desarrollar el cuerpo de la función{}. EJ:
+
+```{r}
+suma <- function(a, b) {
+ return(a + b)
+}
+
+suma(5, 3)
+
+#Para funciones anónimas:
+(function(x) x**2)(5) 
+```
+
+### APPLY, sirven forma de aplicar una función a elementos de una estructura.
+
+##### Sapply: aplica una función a elementos de una lista o vector. EJ:
+
+```{r}
+strings <- c("apple", "banana", "cherry")
+
+sapply(strings, nchar)
+```
+
+##### Lapply: similar a sapply pero devuelve una lista. EJ:
+
+```{r}
+nums <- list(a = 1:3, b = 4:6, c = 7:9)
+
+lapply(nums, function(x) x**2)
+```
+
+##### Apply: dentro del paréntesis deveremos nombrar la función, si es un vector y ponemos 1 lo que hará será operar con la fila y si ponemos dos  sera operar con la columna, se puede añadir sum para hacer un sumatorio.
+
+```{r}
+nums <- list(a = 1:3, b = 4:6, c = 7:9)
+
+m <- sapply(nums, function(x) x**2) 
+
+m
+
+```
+
+```{r}
+apply(m, 2, sum)
+apply(m, 1, sum)
+```
+
+### Ventajas y desventajas de readr_csv vs readr.csv:
+
+-Ventajas readr_csv:  Es más rápido, lógica más puntera en manejo de datos, mayor flexibilidad en la lectura CSV, devuelve tibbles, mayor consistencia en la sintaxis y más propenso a convertir strings en factores.
+
+-Desventajas: dependencia de paquete externo, consume más memoria, los tibbles suelen compos¡rtarse de forma diferente, puede causar incompatibilidades, su comportamiento puede ser no adecuado y es más estricto a la hora de leer archivos.
+
+### TIDYVERSE
+
+##### -Para instalar tidyverse deberemos poner lo siguiente: library(dplyr).
+
+Una de sus nomenclaturas es %\>% EJ:
+
+```{r}
+library(dplyr)
+
+mtcars %>% filter(mpg > 20) %>% select(mpg, hp)
+```
+
+Otra es \|\> EJ:
+
+```{r}
+ mtcars |> subset(mpg > 20) |> subset(select = c(mpg, hp))
+```
+
+Con filter() se usa para extrar subconjuntos:
+
+```{r}
+starwars %>% filter(species == "Droid")
+```
+
+Con select() podemos seleccionar una fila concreta.
+
+```{r}
+ starwars %>% select(name, species)
+```
+
+Con arrange() podemos ordenar las filas según el dato que queramos.
+
+```{r}
+starwars %>% arrange(desc(height))
+```
+
+-Con mutate() sirve para añadir una columna o para modificar una ya contenida.
+
+Con summarize() sirve para realizar la suma la media o el conteo en un único valor.
+
+```{r}
+starwars %>% summarise(mean_height = mean(height, na.rm = TRUE))
+```
+
+Con group_by()  agrupa datos en columnas
+
+```{r}
+ starwars %>% group_by(species) %>% summarise(mean_height = mean(height, na.rm = TRUE))
+```
+
+-inner join: sirve para unir dataframes por columnas que tengan en común.
+
+```{r}
+pedidos <- data.frame(ClienteId = c(1:5), Producto = c("Televisión", "Smartphone", "Frigorífico", "Lavadora", "Microondas"))
+
+ clientes <- data.frame(ClienteId = c(1:8), Nombre = c("Juan", "Jose", "Antonio", "Luis", "Ismael", "David", "Jesús", "Ana"), Ciudad = c("Murcia", "Murcia", "Madrid", "Madrid", "Madrid", "Albacete", "Toledo", "Barcelona"))
+
+pedidos_clientes <- pedidos %>%
+
+inner_join(clientes, by = "ClienteId")
+
+pedidos_clientes
+```
+
+Si la columna no tiene el mismo nombre:
+
+```{r}
+pedidos_clientes <- pedidos %>%
+inner_join(clientes, by = c("ClienteId" = "Id"))
+pedidos_clientes
+```
+
+Dependiendo de si queremos añadir las columnas del dataframe a la derecha o a la izquierda usaremos right_join o left_join respectivamente.EJS:
+
+```{r}
+clientes_pedidos <- clientes %>%
+
+left_join(pedidos, by = c("ClienteId"))
+
+clientes_pedidos
+
+
+pedidos_clientes <- pedidos %>%
+
+right_join(clientes, by = c("ClienteId"))
+
+pedidos_clientes
+
+```
+
+-Para unir los dataframes por completo utilizaremos full_join:
+
+```{r}
+pedidos %>%
+
+full_join(productos, by = c("Producto"))
+```
+
+También se puede hacer utilizando "union":
+
+```{r}
+union(pedidos_ayer, pedidos_hoy)
+```
+
+Puedes usar union_all y en este caso no suprimirá la información redundante, sino que la dejará en la lista:
+
+```{r}
+union_all(pedidos_ayer, pedidos_hoy)
+```
+
+También disponemos de semi_join el cual sirve para filtrar filas de una tabla que aprarecen en otra:
+
+```{r}
+clientes_activos_hoy <- semi_join(clientes, pedidos_hoy, by=c("ClienteId"))
+clientes_activos_hoy
+
+```
+
+y anti_join que hace justo lo contrario, que es mostrar las filas que no aparecen:
+
+```{r}
+clientes_inactivos_hoy <- anti_join(clientes, pedidos_hoy, by=c("ClienteId"))
+clientes_inactivos_hoy
+
+```
