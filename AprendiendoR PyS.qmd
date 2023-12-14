@@ -1,0 +1,1750 @@
+---
+title: "Aprendiendo R"
+author: "Ángel García Merenciano"
+format: pptx
+editor: visual
+---
+
+# Aprendiendo R
+
+### Para asignar variables:
+
+```{r}
+a <- 2
+b <- 5
+```
+
+Aquí podemos ver como a la variable 'a' se le asigna el valor '2' y con 'b' es igual.
+
+### Para añadir texto que no se interpreta, sino que son comentario:
+
+```{r}
+#Esto es un comentario
+```
+
+-Aquí podemos ver que añadiendo'\#' podemos escribir sin que se ejecute
+
+-Para unir o concatenar cosas usaremos paste()
+
+```{r}
+a <- 2
+b <- 5
+paste(a,b)
+```
+
+usaremos ',' para agregar una variable  
+
+### Para saber que estamos tratando usaremos:
+
+```{r}
+x <- 10.5 
+class(x)
+
+```
+
+### Palabras reservadas: if -- true --false -- NA
+
+### Funciones numéricas:
+
+Abs()  =  valor absoluto, sqrt() = raíz cuadrada ,  trunc() = ,round() =
+
+### Funciones numéricas: Funciones de caracteres.
+
+Toupper(cadena) = todo en mayus , tolower(cadena) = todo en minus,
+
+### Para saber que clase es cada variable escribiremos class() y dentro del paréntesis la variable asignada
+
+### Para cambiar funciones as.numeric() - as.integer() - as.complex()
+
+### Para cargar un fichero en Rstudio crearemos un archivo .qmd y haremos click en el símbolo +c dentro de las comillas pondremos:
+
+```{r}
+df <- read.csv('C:\\Users\\angel\\Desktop\\csv.csv')
+```
+
+### Para cargar una librería, escribiremos library(ggplot2), library(dplyr),library(tidyverse),library(dslabs). Estas son la librerías útiles.
+
+### Para ocultar una variable escribiremos un . delante de nuestra variable:
+
+```{r}
+.var_oculta <- "no me ves"
+
+#con ls() puedes ver las variables que tienes
+```
+
+### Media y Mediana.
+
+-Para calcular la media de una variable cuantitativa se usa la función `mean`. Los argumentos básicos de la función `mean`
+
+```{r}
+mean(x, na.rm = FALSE)
+
+mean(x=datos$altura)
+
+edad <- c(18, 23, 26, 32, NA, 32, 29)
+mean(x=edad)
+mean(x=edad, na.rm=TRUE)
+```
+
+-Para calcular la mediana de una variable cantitativa se usa la función `median`. Los argumentos básicos de la función `median`
+
+```{r}
+median(x, na.rm = FALSE)
+
+median(x=datos$edad)
+
+```
+
+### Para sacar la moda primero nombraremos la tabla a crear y después la moda:
+
+```{r}
+tabla frecuencias <- table(df$variable)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+
+#EJ
+
+tabla <- table(datos$edad)
+tabla
+sort(tabla, decreasing=TRUE)
+
+```
+
+### Para sacar la varianza usaremos:
+
+```{r}
+varianza_R <- var(df$Poder)
+varianza_R
+
+```
+
+### Rango:
+
+-Para calcular el rango de una variable cuantitativa se usa la función `range`. Los argumentos básicos de la función `range.`Para sacar el valor que hay en un rango lo haremos mediante : max(df\$Locura) - min(df\$Locura); y para sacar el valor max y min con: range(df\$Poder)
+
+```{r}
+range(x, na.rm = FALSE)
+
+#EJ
+range(datos$precio)
+
+datos %>% 
+  select(precio)%>%
+  range()
+
+datos %>% 
+  group_by(estrato) %>% 
+  summarise(el_rango=max(precio)-min(precio))
+```
+
+### Desviacion estandar:
+
+-Para calcular en R la desviación muestral (S) de una variable cuantitativa se usa la función `sd`, los argumentos básicos de la función `sd`
+
+```{r}
+sd(x, na.rm = FALSE)
+
+sd(x=datos$precio)
+```
+
+### Coeficiente de variacion:
+
+-El coeficiente de variación es muy sencillo de obtenerlo, la función `coef_var`
+
+```{r}
+coef_var <- function(x, na.rm = FALSE) {
+  sd(x, na.rm=na.rm) / mean(x, na.rm=na.rm)
+}
+
+#EJ
+w <- c(5, -3, NA, 8, 8, 7)
+coef_var(x=w, na.rm=T)
+```
+
+### Cuantiles:
+
+-Para obtener cualquier cuantil (cuartiles, deciles y percentiles) se usa la función `quantile.`
+
+```{r}
+quantile(x, probs, na.rm = FALSE)
+
+#EJ
+quantile(x = datos$altura, probs = c(0.05, 0.5, 0.8))
+```
+
+### Media Correlacion:
+
+-La función `cor` permite calcular el coeficiente de correlación de Pearson, Kendall o Spearman para dos variables cuantitativas.
+
+```{r}
+cor(x, y, use="everything",
+    method=c("pearson", "kendall", "spearman"))
+```
+
+Los parámetos de la función son:
+
+-   `x, y`: vectores cuantitativos.
+
+-   `use`: parámetro que indica lo que se debe hacer cuando se presenten registros `NA` en alguno de los vectores. Las diferentes posibilidades son: `everything`, `all.obs`, `complete.obs`, `na.or.complete` y `pairwise.complete.obs`, el valor por defecto es `everything`.
+
+-   `method`: tipo de coeficiente de correlación a calcular, por defecto es `pearson`, otros valores posibles son `kendall` y `spearman`.
+
+### Para definir una secuencia:
+
+```{r}
+seq(0.5, 10, by=0.5)
+```
+
+### Vectores:
+
+-   `min`: para obtener el mínimo de un vector.
+
+-   `max`: para obtener el máximo de un vector.
+
+-   `length`: para determinar la longitud de un vector.
+
+-   `range`: para obtener el rango de valores de un vector, entrega el mínimo y máximo.
+
+-   `sum`: entrega la suma de todos los elementos del vector.
+
+-   `prod`: multiplica todos los elementos del vector.
+
+-   `which.min`: nos entrega la posición en donde está el valor mínimo del vector.
+
+-   `which.max`: nos da la posición del valor máximo del vector.
+
+-   `rev`: invierte un vector
+
+-   Usamos na.rm = TRUE para remover el NA
+
+-   Para crear un vector:
+
+```{r}
+v1_50 <- 1:50
+ print(v1_50)
+#Para sacar su longitud y clase: 
+tam_v1_50h <- length(v1_50)
+tipo_length <- class(tam_v1_50h)
+```
+
+### Matrices:
+
+Para realizar una matriz:
+
+```{r}
+matriz <- matrix(1:9, nrow = 3, byrow = TRUE)
+
+print(matriz)
+#Para crear las columnas y las filas con nombres personalizados lo haremos así:
+nombres_columna <- c('rec_semana','semanas_cart','rec_total','recweek_%')
+
+filas_nombres <- c("The Creator", "Barbie", "Campeonesx")
+
+colnames(cine_29_01_oct) <- nombres_columna
+
+rownames(cine_29_01_oct) <- filas_nombres
+```
+
+Para hacer una matriz identidad se crea usando diag().
+
+### Factores:
+
+Para crear un factor con algunas variables:
+
+```{r}
+factor_animals_vector <- factor (animals_vector, levels = c("Elephant", "Giraffe", "Donkey", "Horse"))
+
+print(factor_animals_vector)
+
+Para ordenar una secuencia de datos: temperature_vector <- c("High", "Low", "High","Low", "Medium")
+
+factor_temperature_vector <- factor (temperature_vector, levels = c("Low", "Medium", "High"))
+
+print(factor_temperature_vector)
+```
+
+### Funciones:
+
+-Para crear una función debemos darle un nombre y nombrarla con function darle argumentos () y desarrollar el cuerpo de la función{}.
+
+EJ:
+
+```{r}
+suma <- function(a, b) {
+ return(a + b)
+}
+
+suma(5, 3)
+
+#Para funciones anónimas:
+(function(x) x**2)(5) 
+```
+
+-Usando la función `seq`, los argumentos de esta función son:
+
+-   `from`: valor de inicio de la secuencia.
+
+-   `to`: valor de fin de la secuencia, no siempre se alcanza.
+
+-   `by`: incremento de la secuencia.
+
+-   `length.out`: longitud deseado de la secuencia.
+
+-   La estructura de esta función es:
+
+```{r}
+seq(from=1, to=1, by, length.out)
+```
+
+-Podemos crear repeticiones usando la función `rep.`
+
+Los argumentos de esta función son:
+
+-   `x`: vector con los elementos a repetir.
+
+-   `times`: número de veces que el vector `x` se debe repetir.
+
+-   `length.out`: longitud deseada para el vector resultante.
+
+-   `each`: número de veces que cada elemento de `x` se debe repetir.
+
+    ```{r}
+    rep(x, times=1, length.out=NA, each=1)
+    ```
+
+-Las funciones `sort` y `rank` son útiles para ordenar los elementos de un vector o para saber las posiciones que ocuarían los elementos de un vector al ser ordenado.
+
+```{r}
+sort(x, decreasing = FALSE)
+rank(x)
+```
+
+### IF / IF ELSE / IFELSE / FOR / WHILE / REPEAT
+
+-IF: Sirve para realizar un conjunto de operaciones **si** se cumple cierta condición.
+
+```{r}
+sal <- 1  # Salario básico por semana
+hlab <- 45   # Horas laboradas por semana
+
+if(hlab > 40) {
+  hext <- hlab - 40
+  salext <- hext * 0.05
+  sal <- sal + salext
+}
+
+sal  # Salario semanal
+```
+
+-IF ELSE: Sirve para realizar un conjunto de operaciones cuando NO se cumple cierta condición evaluada por un IF:
+
+```{r}
+if (condicion) {
+  operación 1
+  operación 2
+  ...
+  operación final
+}
+else {
+  operación 1
+  operación 2
+  ...
+  operación final
+
+```
+
+-IFELSE: Se recomienda usar la instruccion ifelse cuando hay una sola instruccion para el caso if y el caso else.
+
+```{r}
+x <- c(5, 3, 2, 8, -4, 1)
+
+ifelse(x %% 2 == 0, 'Es par', 'Es impar')
+```
+
+-FOR: La instrucción `for` es muy útil para repetir un procedimiento cierta cantidad de veces
+
+```{r}
+nrep <- 10  # Número de repeticiones
+n <- 100    # Tamaño de la muestra
+conteo <- numeric(nrep)  # Vector para almacenar el conteo
+
+for (i in 1:nrep) {
+  x <- runif(n=n, min=1, max=3)
+  conteo[i] <- sum(x >= 2.5)
+}
+
+conteo  # Para obtener el conteo
+```
+
+-WHILE: La instrucción `while` es muy útil para repetir un procedimiento siempre que se cumple una condición
+
+```{r}
+num.lanza <- 0     # Contador de lanzamientos
+num.caras <- 0     # Contados de caras obtenidas
+historial <- NULL  # Vector vacío para almacenar
+
+resultados <- c('Cara', 'Sello')
+sample(x=resultados, size=1)  # Prueba 1
+
+while (num.caras < 5) {
+  res <- sample(x=resultados, size=1)
+  num.lanza <- num.lanza + 1
+  historial[num.lanza] <- res
+  if (res == 'Cara') {
+    num.caras <- num.caras + 1
+  }
+}
+
+historial
+```
+
+-REPEAT:
+
+```{r}
+x <- 3  # Valor de inicio
+
+repeat {
+   print(x)
+   x <-  x + 1
+   if (x == 8) {
+     break
+   }
+}
+```
+
+### Tabla de frecuencias.
+
+La función `table` sirve para construir tablas de frecuencia de una vía, a continuación la estrctura de la función.
+
+```{r}
+fuma <- c('Frecuente', 'Nunca', 'A veces', 'A veces', 'A veces',
+          'Nunca', 'Frecuente', NA, 'Frecuente', NA, 'hola', 
+          'Nunca', 'Hola', 'Frecuente', 'Nunca')
+
+table(fuma)
+
+tabla1 <- table(fuma, exclude=c('Hola', 'hola', NA))
+tabla1
+
+#Tabla con 2 vias
+
+sexo <- c('Hombre', 'Hombre', 'Hombre', NA, 'Mujer',
+          'Casa', 'Mujer', 'Mujer', 'Mujer', 'Hombre', 'Mujer', 
+          'Hombre', NA, 'Mujer', 'Mujer')
+
+table(sexo, fuma)
+
+tabla2 <- table(sexo, fuma, exclude=c('Hola', 'hola', 'Casa', NA))
+tabla2
+```
+
+### Función hist.
+
+Construir tablas de frecuencias para variables cuantitativas es necesario en muchos procedimientos estadísticos, la función `hist` sirve para obtener este tipo de tablas.
+
+```{r}
+hist(x, breaks='Sturges', include.lowest=TRUE, right=TRUE, 
+     plot=FALSE)
+```
+
+Los parámetros de la función son:
+
+-   `x`: vector numérico.
+
+-   `breaks`: vector con los límites de los intervalos. Si no se especifica se usar la regla de Sturges para definir el número de intervalos y el ancho.
+
+-   `include.lowest`: valor lógico, si `TRUE` una observación que coincida con un límite de intervalo será ubicada en el intervalo izquierdo, si `FALSE` será incluída en el intervalo a la derecha.
+
+-   `right`: valor lógico, si `TRUE` los intervalos serán cerrados a derecha de la forma, si es `FALSE` serán abiertos a derecha.
+
+-   `plot`: valor lógico, si `FALSE` sólo se obtiene la tabla de frecuencias mientras que con `TRUE` se obtiene la representación gráfica llamada histograma.
+
+### APPLY, Sirven forma de aplicar una función a elementos de una estructura.
+
+##### Sapply: aplica una función a elementos de una lista o vector. EJ:
+
+```{r}
+strings <- c("apple", "banana", "cherry")
+
+sapply(strings, nchar)
+```
+
+##### Lapply: similar a sapply pero devuelve una lista. EJ:
+
+```{r}
+nums <- list(a = 1:3, b = 4:6, c = 7:9)
+
+lapply(nums, function(x) x**2)
+```
+
+##### Apply: dentro del paréntesis deveremos nombrar la función, si es un vector y ponemos 1 lo que hará será operar con la fila y si ponemos dos  sera operar con la columna, se puede añadir sum para hacer un sumatorio.
+
+```{r}
+nums <- list(a = 1:3, b = 4:6, c = 7:9)
+
+m <- sapply(nums, function(x) x**2) 
+
+m
+
+```
+
+```{r}
+apply(m, 2, sum)
+apply(m, 1, sum)
+```
+
+### Ventajas y desventajas de readr_csv vs readr.csv:
+
+-Ventajas readr_csv:  Es más rápido, lógica más puntera en manejo de datos, mayor flexibilidad en la lectura CSV, devuelve tibbles, mayor consistencia en la sintaxis y más propenso a convertir strings en factores.
+
+-Desventajas: dependencia de paquete externo, consume más memoria, los tibbles suelen compos¡rtarse de forma diferente, puede causar incompatibilidades, su comportamiento puede ser no adecuado y es más estricto a la hora de leer archivos.
+
+### TIDYVERSE
+
+##### -Para instalar tidyverse deberemos poner lo siguiente: library(dplyr).
+
+Una de sus nomenclaturas es %\>% EJ:
+
+```{r}
+library(dplyr)
+
+mtcars %>% filter(mpg > 20) %>% select(mpg, hp)
+```
+
+Otra es \|\> EJ:
+
+```{r}
+ mtcars |> subset(mpg > 20) |> subset(select = c(mpg, hp))
+```
+
+Con filter() se usa para extrar subconjuntos:
+
+```{r}
+starwars %>% filter(species == "Droid")
+```
+
+Con select() podemos seleccionar una fila concreta.
+
+```{r}
+ starwars %>% select(name, species)
+```
+
+Con arrange() podemos ordenar las filas según el dato que queramos.
+
+```{r}
+starwars %>% arrange(desc(height))
+```
+
+-Con mutate() sirve para añadir una columna o para modificar una ya contenida.
+
+Con summarize() sirve para realizar la suma la media o el conteo en un único valor.
+
+```{r}
+starwars %>% summarise(mean_height = mean(height, na.rm = TRUE))
+```
+
+Con group_by()  agrupa datos en columnas
+
+```{r}
+ starwars %>% group_by(species) %>% summarise(mean_height = mean(height, na.rm = TRUE))
+```
+
+-inner join: sirve para unir dataframes por columnas que tengan en común.
+
+```{r}
+pedidos <- data.frame(ClienteId = c(1:5), Producto = c("Televisión", "Smartphone", "Frigorífico", "Lavadora", "Microondas"))
+
+ clientes <- data.frame(ClienteId = c(1:8), Nombre = c("Juan", "Jose", "Antonio", "Luis", "Ismael", "David", "Jesús", "Ana"), Ciudad = c("Murcia", "Murcia", "Madrid", "Madrid", "Madrid", "Albacete", "Toledo", "Barcelona"))
+
+pedidos_clientes <- pedidos %>%
+
+inner_join(clientes, by = "ClienteId")
+
+pedidos_clientes
+```
+
+Si la columna no tiene el mismo nombre:
+
+```{r}
+pedidos_clientes <- pedidos %>%
+inner_join(clientes, by = c("ClienteId" = "Id"))
+pedidos_clientes
+```
+
+Dependiendo de si queremos añadir las columnas del dataframe a la derecha o a la izquierda usaremos right_join o left_join respectivamente.EJS:
+
+```{r}
+clientes_pedidos <- clientes %>%
+
+left_join(pedidos, by = c("ClienteId"))
+
+clientes_pedidos
+
+
+pedidos_clientes <- pedidos %>%
+
+right_join(clientes, by = c("ClienteId"))
+
+pedidos_clientes
+
+```
+
+-Para unir los dataframes por completo utilizaremos full_join:
+
+```{r}
+pedidos %>%
+
+full_join(productos, by = c("Producto"))
+```
+
+También se puede hacer utilizando "union":
+
+```{r}
+union(pedidos_ayer, pedidos_hoy)
+```
+
+Puedes usar union_all y en este caso no suprimirá la información redundante, sino que la dejará en la lista:
+
+```{r}
+union_all(pedidos_ayer, pedidos_hoy)
+```
+
+También disponemos de semi_join el cual sirve para filtrar filas de una tabla que aprarecen en otra:
+
+```{r}
+clientes_activos_hoy <- semi_join(clientes, pedidos_hoy, by=c("ClienteId"))
+clientes_activos_hoy
+
+```
+
+y anti_join que hace justo lo contrario, que es mostrar las filas que no aparecen:
+
+```{r}
+clientes_inactivos_hoy <- anti_join(clientes, pedidos_hoy, by=c("ClienteId"))
+clientes_inactivos_hoy
+
+```
+
+Con la función readline sirve para imprimir por pantalla un promp en la cual recoge una informacion introducida:
+
+```{r}
+my_name <- readline(prompt="Ingrese su nombre: ")
+my_age  <- readline(prompt="Ingrese su edad en años: ")
+my_age  <- as.integer(my_age) # convert character into integer
+
+print(paste("Hola,", my_name, 
+            "el año siguiente usted tendra", 
+            my_age + 1, 
+            "años de edad."))
+```
+
+### Graficos:
+
+#### La función `boxplot` sirve para crear un diagrama de cajas y bigote para una variable cuantitativa.
+
+```{r}
+boxplot(x, formula, data, subset, na.action,
+        range, width, varwidth, notch, names, 
+        plot, col, log, horizontal, add, ...)
+
+#EJ
+
+url <- 'https://tinyurl.com/k55nnlu'
+datos <- read.table(file=url, header=T)
+
+par(mfrow=c(1, 2))
+boxplot(x=datos$altura, ylab='Altura (cm)')
+boxplot(x=datos$altura, xlab='Altura (cm)', horizontal=TRUE)
+
+```
+
+Los argumentos de la función `boxplot` son:
+
+-   `x`: vector numérico con los datos para crear el boxplot.
+
+-   `formula`: fórmula con la estructura `x ~ g` para indicar que las observaciones en el vector `x` van a ser agrupadas de acuerdo a los niveles del factor `g`.
+
+-   `data`: marco de datos con las variables.
+
+-   `subset`: un vector opcional para especificar un subconjunto de observaciones a ser usadas en el proceso de ajuste.
+
+-   `na.action`: una función la cual indica lo que debería pasar cuando los datos contienen NA's''.
+
+-   `range`: valor numérico que indica la extensión de los bigotes. Si es positivo, los bigotes se extenderán hasta el punto más extremo de tal manera que el bigote no supere veces el rango intercuatílico (IQ��). Un valor de cero hace que los bigotes se extiendan hasta los datos extremos.
+
+-   `width`: un vector con los anchos relativos de las cajas.
+
+-   `varwidth`: Si es `TRUE`, las cajas son dibujadas con anchos proporcionales a las raíces cuadradas del número de observaciones en los grupos.
+
+-   `notch`: si es `TRUE`, una cuña es dibujada a cada lado de las cajas. Cuando las cuñas de dos gráficos de caja no se traslapan, entonces las medianas son significativamente diferentes a un nivel del 5%.
+
+-   `names`: un con las etiquetas a ser impresas debajo de cada boxplot.
+
+-   `plot`: si es `TRUE` (por defecto) entonces se produce el gráfico, de lo contrario, se producen los resúmenes de los boxplots.
+
+-   `col`: vector con los colores a usar en el cuerpo de las cajas.
+
+-   `log`: para indicar si las coordenadas `x` o `y` o serán graficadas en escala logarítmica.
+
+-   `...`: otros parámetros gráficos que pueden ser pasados como argumentos para el boxplot.
+
+#### La función `hist` sirve para crear el histograma a una variable cuantitativa.
+
+```{r}
+maraton <- c(
+10253, 10302, 10307, 10309, 10349, 10353, 10409, 10442, 10447, 
+10452, 10504, 10517, 10530, 10540, 10549, 10549, 10606, 10612, 
+10646, 10648, 10655, 10707, 10726, 10731, 10737, 10743, 10808, 
+10833, 10843, 10920, 10938, 10949, 10954, 10956, 10958, 11004, 
+11009, 11024, 11037, 11045, 11046, 11049, 11104, 11127, 11205, 
+11207, 11215, 11226, 11233, 11239, 11307, 11330, 11342, 11351, 
+11405, 11413, 11438, 11453, 11500, 11501, 11502, 11503, 11527, 
+11544, 11549, 11559, 11612, 11617, 11635, 11655, 11731, 11735,
+11746, 11800, 11814, 11828, 11832, 11841, 11909, 11926, 11937, 
+11940, 11947, 11952, 12005, 12044, 12113, 12209, 12230, 12258, 
+12309, 12327, 12341, 12413, 12433, 12440, 12447, 12530, 12600, 
+12617, 12640, 12700, 12706, 12727, 12840, 12851, 12851, 12937,
+13019, 13040, 13110, 13114, 13122, 13155, 13205, 13210, 13220, 
+13228, 13307, 13316, 13335, 13420, 13425, 13435, 13435, 13448, 
+13456, 13536, 13608, 13612, 13620, 13646, 13705, 13730, 13730, 
+13730, 13747, 13810, 13850, 13854, 13901, 13905, 13907, 13912,
+13920, 14000, 14010, 14025, 14152, 14208, 14230, 14344, 14400, 
+14455, 14509, 14552, 14652, 15009, 15026, 15242, 15406, 15409, 
+15528, 15549, 15644, 15758, 15837, 15916, 15926, 15948, 20055, 
+20416, 20520, 20600, 20732, 20748, 20916, 21149, 21714, 23256)
+
+horas <- maraton %/% 10000
+min <- (maraton - horas * 10000) %/% 100
+seg <- maraton - horas * 10000 - min * 100
+Tiempos <- horas + min / 60 + seg / 3600
+
+par(mfrow=c(2,2))
+
+hist(x=Tiempos, breaks=2, main="", xlab="Tiempo (horas)",
+     ylab="Frecuencias", las=1)
+mtext("(A)", side=1, line=4, font=1)
+
+hist(x=Tiempos, breaks=4, main="", xlab="Tiempo (horas)",
+     ylab="Frecuencias", las=1)
+mtext("(B)", side=1, line=4, font=1)
+
+hist(x=Tiempos, breaks=8, main="", xlab="Tiempo (horas)",
+     ylab="Frecuencias")
+mtext("(C)", side=1, line=4, font=1)
+
+hist(x=Tiempos, breaks=16, main="", xlab="Tiempo (horas)",
+     ylab="Frecuencias")
+mtext("(D)", side=1, line=4, font=1)
+```
+
+#### Los gráficos de densidad son muy útiles porque permiten ver el(los) intervalo(s) donde una variable cuantitativa puede ocurrir con mayor probabilidad.
+
+#### La función `density` crea la información de la densidad y la función `plot` dibuja la densidad.
+
+```{r}
+density(x, bw, adjust=1, kernel='gaussian', na.rm=FALSE)
+
+#EJ
+par(mfrow=c(2, 2))
+plot(density(y, kernel='gaussian'))
+plot(density(y, kernel='triangular'))
+plot(density(y, kernel='cosine'))
+plot(density(y, kernel='rectangular'))
+```
+
+Los argumentos de la función `density` son:
+
+-   `x`: vector con los datos para los cuales se quiere la densidad.
+
+-   `bw`: ancho de banda.
+
+-   `kernel`: núcleo de suavización a usar, los posibles valores son `gaussian`, `rectangular`, `triangular`, `epanechnikov`, `biweight`, `cosine` o `optcosine`, el valor por defecto es `gaussian`.
+
+-   `na.rm`: valor lógico, si es `TRUE` se eliminan los valores con `NA` para construir la densidad, el valor por defecto es `FALSE`.
+
+### Probabilidad:
+
+-La probabilidad asociada a un evento aleatorio es un numero entr 0 y 1 que mide el grado de certidumbre de que ocurra. P (evento)=eventos posibles / eventos totales.
+
+A esta operacion con resultados bien definidos de llama Experimento.
+
+EJ: P(cara)={\frac{{ favorables }}{posibles} = \frac{1}{2}}
+
+Todos los resultados de un experimento se llaman espacio muestral.
+
+Ejemplo: Lanzar un dado y obtener un tres. P(3)={\frac{{ 1 }}{6}}. Lanzar un dado y obtener un uno o un tres. P(1,3)={\frac{{ 1 }}{6}+\frac{{ 1 }}{6} = \frac{{ 1 }}{3}}. El espacio muestral es **S = {1,2,3,4,5,6}**
+
+La probabilidad de que un evento ocurra se denota con la letra **p**, mientras que la de que no ocurra con la letra **q**.
+
+En el primer caso (sucesos independientes): Probabilidad de obtener dos veces rojo en la ruleta en un experimento:
+
+```{r}
+p_2x_rojo <- (18/37)*(18/37)
+p_2x_rojo
+```
+
+En el segundo caso (sucesos dependientes): Probabilidad de obtener dos ases en Texas Holdem
+
+```{r}
+p_AA <- (4/52)*(3/51)
+p_AA
+```
+
+```{r}
+# leemos el fichero desde el repositorio de github:
+lqsa <- read.csv("https://raw.githubusercontent.com/jesusturpin/curintel2324/main/data/lqsa.csv")
+str(lqsa)
+
+# Convertimos en factor las últimas dos columnas:
+categ <- c("Grupo_edad", "Sexo")
+# Si queremos convertir todas las columnas chr: categ <- sapply(lqsa, is.character)
+lqsa[categ] <- lapply(lqsa[categ], as.factor)
+summary(lqsa)
+```
+
+Si queremos que nuestro experimento sea reproducible, debemos utilizar una misma semilla para generar una secuencia de números aleatorios:
+
+```{r}
+set.seed(4444)
+s <- sample(1:nrow(lqsa), n, replace=FALSE)
+s
+
+#Podemos realizar la misma operación, utilizando el operador %>% pipe y la función sample_n(), ambas en la libreria dplyr
+library(dplyr)
+set.seed(4444)
+n = round(nrow(lqsa)/2) # 15
+lqsa %>%
+  sample_n(size=n, replace=FALSE)
+```
+
+Replace en los codigos anteriores significa que si esta en FALSE no volvera a salir el dato en cambio con TRUE si puede repetirse.
+
+### Teorema central del limite, Valor Esperado:
+
+**Esperanza matemática** Se define como la media de la distribución de probabilidad.
+
+Vemos como calcularlo en R:
+
+```{r}
+library(tidyverse)
+dado <- data.frame(n=1:6)
+dado
+
+mean(dado$n)
+
+dado_x50 <- dado %>%
+  sample_n(50, replace=TRUE)
+mean(dado_x50$n)
+
+ggplot(dado_x50, aes(n)) +
+  geom_histogram(bins=6, fill = "blue", color = "black")+
+  labs(title = "Experimento: 50 tiradas de un dado", x = "Número", y = "Frecuencia")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  geom_hline(yintercept = 50/6, color = "red", linetype = "dashed", linewidth = 1)
+```
+
+Mientras que la distribución teórica es:
+
+```{r}
+pdado <- data.frame(numero = 1:6, prob = rep(1/6,6))
+ggplot(pdado, aes(x=numero,y=prob)) +
+  geom_col(fill = "blue", color = "black")+
+  geom_hline(yintercept = 1/6, color = "red", linetype = "dashed", size = 1)
+
+#A medida que se hacer mayor se aproxima al valor teorico:
+
+ dado %>%
+  sample_n(3000, replace=TRUE) %>%
+  ggplot(aes(n))+
+  geom_histogram(bins=6, fill = "blue", color = "black")+
+  labs(title = "Experimento: 3000 tiradas de un dado", x = "Número", y = "Frecuencia")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  geom_hline(yintercept = 3000/6, color = "red", linetype = "dashed", size = 1)
+```
+
+Probabilidades rula:
+
+```{r}
+ruleta <- data.frame(n=0:36)
+ruleta %>%
+  sample_n(100, replace=TRUE) %>%
+  mutate(jugador = case_when(n == 7 ~ 35, TRUE ~ -1)) %>%
+  mutate(casino = case_when(n == 7 ~ -35, TRUE ~ 1)) %>%
+  summarize(gan_jug = sum(jugador), gan_casino = sum(casino), ev_jug = mean(jugador), ev_cas = mean(casino))
+
+#Simulaciones:
+  
+  
+ruleta <- data.frame(n=0:36)
+ruleta %>%
+  sample_n(5000000, replace=TRUE) %>%
+  mutate(jugador = case_when(n == 7 ~ 35, TRUE ~ -1)) %>%
+  mutate(casino = case_when(n == 7 ~ -35, TRUE ~ 1)) %>%
+  summarize(gan_jug = sum(jugador), gan_casino = sum(casino), ev_jug = mean(jugador), ev_cas = mean(casino), varianza = var(jugador))
+
+ruleta <- data.frame(n=0:36)
+ruleta %>%
+  sample_n(5000000, replace=TRUE) %>%
+  mutate(jugador = case_when((n %% 2) == 1  ~ 1, TRUE ~ -1)) %>%
+  mutate(casino = -jugador) %>%
+  summarize(gan_jug = sum(jugador), gan_casino = sum(casino), ev_jug = mean(jugador), ev_cas = mean(casino), varianza = var(jugador))
+```
+
+### Simulacion de Monte Carlo:
+
+```{r}
+#Supongamos que en una clase hay 50 personas. Asumimos que han sido aleatoriamente seleccionadas. ¿Cuál es la probabilidad de que al menos dos personas cumplan años el mismo día?
+n <- 50
+dias <- sample(1:365, n, replace = TRUE)
+
+#La función duplicated(), nos permite averiguar si en un vector hay elementos duplicados
+duplicated(c(1,2,3,1,4,3,5))
+
+#Nos interesa saber si al menos uno de ellos lo está, para ello, la función any() evalua si hay algún elemento a TRUE.
+any(duplicated(c(1,2,3,1,4,3,5)))
+
+#La función replicate(), nos permite repetir un experimiento B veces:
+B <- 10000
+mismo_dia_cumple <- function(n) {
+  dias <- sample(1:365, n, replace = TRUE)
+  any(duplicated(dias))
+}
+results <- replicate(B, mismo_dia_cumple(n))
+mean(results)
+
+calcular_prob_sim <- function(n, B=10000) {
+  resultados <- replicate(B, mismo_dia_cumple(n))
+  mean(resultados)
+}
+```
+
+### Distribucion Normal:
+
+Caracteristicas:
+
+-   Simétrica respecto a la media, la mediana y la moda, que coinciden.
+
+-   Requiere dos parámetros para su definición:\\mu y \\sigma
+
+-   Para cualquier distribución normal X∼N(\\mu, \\sigma), se puede realizar una transformación llamada tipificación o normalización, de forma que /mu=0 y /sigma=1. De esta forma: Z∼N(0,1)
+
+Funcion de densidad de probabilidad (fdp)
+
+```{r}
+#Un data frame que contenga un vector con 5.000 medidas generadas aleatoriamente, que siguen una distribución normal con una media de 175 cm y una desviación estándar de 3 cm
+set.seed(12345)
+muestras <- 5000
+sigma <- 3
+mu <- 175
+x <- rnorm(muestras, mean=mu, sd=sigma)
+alfa = 0.05
+
+y <- 1/(sigma*sqrt(2*pi))*exp(-((x-mu)^2/(2*sigma^2))) # densidad calculada mediante fórmula
+
+alturas_df <- data.frame(x,y)
+alturas_df$fx <- dnorm(alturas_df$x, mu, sigma) # densidad calculada por R con dnorm
+
+alturas_df$Fx <- pnorm(x, mu, sigma) # distribución acumulada calculada con R
+
+mean(abs(alturas_df$y - alturas_df$fx)) # Media de las diferencias entre ambos cálculos
+
+#Cuantiles Dist. Normal con qnorm:
+qnorm(alfa/2, mean = 175, sd = 3)
+qnorm(1-alfa/2, mean = 175, sd = 3)
+
+quantile(alturas_df$x, alfa/2)
+quantile(alturas_df$x, 1-alfa/2)
+```
+
+### Funcion de distribucion acumulada:
+
+\Phi\*{\*\\mu, \\sigma\\\^2}(x) = \int{-\infty}\^{x} \phi\_{\mu, \sigma\^2}(t) , dt
+
+```{r}
+a <- 177
+ggplot() + 
+  geom_line(data = alturas_df, aes(x, y), color="blue", linewidth = 1) +
+  geom_area(data = subset(alturas_df, x <= a), 
+            fill = "grey", alpha = 0.5, aes(x, y)) +
+  scale_x_continuous(breaks = ((mu-3*sigma)):(mu+3*sigma)) +
+  geom_vline(xintercept = mu, color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu-sigma, color = "green",
+             linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu+sigma, color = "green", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu-2*sigma, color = "grey", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu+2*sigma, color = "grey", linetype = "dashed", linewidth = 1) +
+  annotate("text", x = mu*1.0025, y = 0, 
+           label = expression(mu), vjust = 0.5, size = 5) +
+  annotate("text", x = a, y = 0, label = "x = a", vjust = -1, color = "red") +
+  
+  labs(
+    title = bquote("Función de densidad Normal: " ~ mu ~ "= 175, " ~ sigma ~ "= 3"),
+    x = "altura",
+    y = "densidad") +
+  theme_bw()
+```
+
+### Funciones pnorm, dnorm, qnorm, rnorm:
+
+##### **Distribución acumulada: `pnorm`**
+
+Con la función `pnorm`, podemos generar la función de distribución acumulada:
+
+```{r}
+alturas_df$Fx <- pnorm(x, 175, 3)
+ggplot(alturas_df, aes(x,Fx)) +
+  geom_line(color="blue", linewidth = 1) +
+  scale_x_continuous(breaks = ((mu-3*sigma)):(mu+3*sigma)) +
+  geom_vline(xintercept = mu, color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu-sigma, color = "green", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu+sigma, color = "green", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu-2*sigma, color = "grey", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu+2*sigma, color = "grey", linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Función de distribución de probabilidad acumulada",
+    x = "altura",
+    y = "probabilidad") +
+  theme_bw()
+
+#Obtener la probabilidad de que x <= a: Ejemplo: probabilidad de que la altura sea menor de 177:
+b <- 177
+plow_177 <- pnorm(a, mean = mu, sd = sigma)
+plow_177
+
+a <- 177
+ggplot() + 
+  geom_line(data = alturas_df, aes(x, Fx), color="blue", linewidth = 1) +
+  geom_hline(yintercept = pnorm(a, mu, sigma), color = "green", linewidth = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = ((mu-3*sigma)):(mu+3*sigma)) +
+  geom_vline(xintercept = mu, color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = a, color = "green", linetype = "dashed", linewidth = 1) +
+  annotate("text", x = mu*1.0025, y = 0, 
+           label = expression(mu), vjust = 0.5, size = 5) +
+  annotate("text", x = a, y = 0, label = "x = a", vjust = -1, color = "red") +
+  
+  labs(
+    title = bquote("Función de Distribución acumulada Normal: " ~ mu ~ "= 175, " ~ sigma ~ "= 3"),
+    x = "altura",
+    y = "P(x <= a)") +
+  theme_bw()
+
+a <- 171
+pupp_171 <- pnorm(a, mean = mu, sd = sigma, lower.tail = FALSE)
+pupp_171
+
+1 - pnorm(a, mean = mu, sd = sigma)
+#Si queremos calcular la probabilidad de que la altura esté en el intervalo [171,177]:
+a <- 171
+b <- 177
+alturas_df_171_177 <- alturas_df %>% 
+  filter(x > a, x <= b)
+ggplot() + 
+  geom_line(data = alturas_df, aes(x, y), color="blue", linewidth = 1) +
+  geom_area(data = subset(alturas_df_171_177, x > a), 
+            fill = "grey", alpha = 0.5, aes(x, y)) +
+  scale_x_continuous(breaks = ((mu-3*sigma)):(mu+3*sigma)) +
+  geom_vline(xintercept = a, color = "red", linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = b, color = "green",
+             linetype = "dashed", linewidth = 1) +
+  annotate("text", x = b, y = 0, label = "x = b", vjust = -1, color = "darkgreen") +
+  annotate("text", x = a, y = 0, label = "x = a", vjust = -1, color = "red") +
+  
+  labs(
+    title = bquote("Función de densidad Normal: " ~ mu ~ "= 175, " ~ sigma ~ "= 3"),
+    x = "altura",
+    y = "densidad") +
+  theme_bw()
+
+a <- 171
+b <- 177
+
+# P(171 < x < 177) es P(x < 177) - P (x < 171)
+
+# P(x < 171) es 1 - P(x > 171)
+pnorm(b, mean = mu, sd = sigma)
+pnorm(a, mean = mu, sd = sigma)
+pnorm(b, mean = mu, sd = sigma) - pnorm(a, mean = mu, sd = sigma)
+```
+
+### **Densidad de probabilidad:**
+
+Generar la función de densidad de probabilidad a partir de una secuencia de valores x:
+
+```{r}
+# Generamos valores de x
+x <- seq(160, 190, length.out = 100)
+# Calculamos la densidad de la distribución normal a partir de los cuantiles
+y <- dnorm(x, mean = mu, sd = sigma)
+
+# Creamos el gráfico
+ggplot() + 
+  geom_line(data = data.frame(x,y), aes(x, y), color="blue", linewidth = 1) +
+  labs(
+    title = bquote("Función de densidad Normal: " ~ mu ~ "= 175, " ~ sigma ~ "= 3"),
+    x = "altura",
+    y = "densidad") +
+  theme_bw()
+```
+
+### Cuantiles:
+
+```{r}
+qnorm(0.025, mean = 175, sd = 3)
+qnorm(0.975, mean = 175, sd = 3)
+
+# Generamos valores de x
+q <- seq(0, 1000)/1000
+# Calculamos los cuantiles (percentiles)
+x <- qnorm(q, mu, sigma)
+perc_df <- data.frame(q = q[2:1000], x = qnorm(q, mu, sigma)[2:1000])
+# Creamos el gráfico
+ggplot() +
+  geom_line(data = perc_df, aes(q, x), color="blue", linewidth = 1) +
+  labs(
+    title = bquote("Gráfica de cuantiles " ~ mu ~ "= 175, " ~ sigma ~ "= 3"),
+    x = "Cuantiles",
+    y = "Altura") +
+  theme_bw()
+```
+
+### **Generación de números aleatorios siguiendo una distribución normal:**
+
+```{r}
+set.seed(123)
+x <- rnorm(n = 500, mu, sigma)
+ggplot(data.frame(x,y), aes(x)) +
+  geom_density()
+```
+
+# **Escalamiento**:
+
+El proceso de escalamiento es necesario en muchas ocasiones para poder realizar ciertos análisis o modelos, pues en muchas ocasiones, el peso de las variables está influenciado por la magnitud o escala de medida. Sin embargo, para los modelos, no importa la magnitud ni la escala, sino que todos los datos se encuentren en la misma escala para ser comparables.
+
+x\_{\text{new}\_i} = \frac{x_{\text{old}_i} - \min(x_{\text{old}_i})}{\max(x_{\text{old}_i}) - \min(x_{\text{old}_i})}
+
+```{r}
+min_x <- min(alturas_df$x)
+rg <- max(alturas_df$x) - min_x
+alturas_df %>%
+  mutate(x_rang = (x - min_x)/rg) %>%
+  ggplot(aes(x_rang)) + 
+  geom_density()+
+  theme_bw()
+```
+
+# **Distribución Uniforme:**
+
+La distribución uniforme es comúnmente usada para modelar situaciones donde se asume que los eventos son igualmente probables en un intervalo continuo y finito. Es una distribución importante en estudios de simulaciones donde se requieren muestras aleatorias de variables continuas.
+
+-   Simétrica, todos los valores tienen la misma probabilidad.
+
+-   Dos parámetros a y b la definen completamente, que son los límites inferior y superior del intervalo en el cual la variable puede tomar valores.
+
+##### **Función de densidad de probabilidad (f.d.p.)**
+
+f(x; a, b) = \frac{1}{b - a} \quad \text{para} \quad a \leq x \leq b
+
+```{r}
+set.seed(12345)
+a <- 0
+b <- 1
+x <- runif(100000, min = a, max = b)
+y <- dunif(x, min = a, max = b)
+FD <- (x - a) / (b - a)
+valores_df <- data.frame(x, y, FD)
+valores_0 <- data.frame(
+  x = c(seq(-0.1:-0.0001, by = 0.001, length.out = 100), seq(1.0001:1.1, by = 0.001, length.out = 100)),
+  y = rep(0, 200)
+)
+valores_0 <- valores_0 %>%
+  mutate(FD = if_else(x < 0, 0, 1))
+
+valores_df <- rbind(valores_0, valores_df)
+
+ggplot() +
+  geom_line(data = valores_df, mapping = aes(x,y), color="blue", linewidth=1) +
+  labs(
+    title = "Función de densidad de probabilidad de la distribución Uniforme entre 0 y 1",
+    x = "x",
+    y = "densidad") +
+  theme_bw()
+```
+
+##### **Función de distribución acumulada (F.D)**
+
+```{r}
+ggplot(valores_df, aes(x,FD)) +
+
+  geom_line(color="blue", linewidth=1) +
+
+  labs(
+
+    title = "Función de distribución acumulada Uniforme contínua: (0,1)",
+
+    x = "x",
+
+    FD = "cdf") +
+
+  theme_bw()
+```
+
+## **Cálculos de probabilidades. Funciones `punif`, `dunif`, `qunif`, `runif:`**
+
+punif:
+
+```{r}
+#Si un bus llega en cualquier momento dentro de una ventana de tiempo de 30 minutos, ¿cuál es la probabilidad de que llegue antes de los primeros 10 minutos?
+punif(10, min = 0, max = 30)
+#Ejemplo: ¿cuál es la probabilidad de que el bus llegue después de los primeros 20 minutos?
+punif(20, min = 0, max = 30, lower.tail = FALSE)
+1 - punif(20, min = 0, max = 30)
+```
+
+qunif:
+
+```{r}
+#¿Cuál es el punto medio del intervalo de tiempo para la llegada del bus? ¿Y cuáles son los tiempos correspondientes al primer y tercer cuartil?
+qunif(0.5, min = 0, max = 30)
+qunif(0.25, min = 0, max = 30)
+qunif(0.75, min = 0, max = 30)
+```
+
+runif:
+
+```{r}
+#Muy utilizada para generar números aleatorios con idéntica probabilidad, en un intervalo contínuo
+runif(10,1,10)
+```
+
+dunif:
+
+```{r}
+#En esta distribución t es constante
+dunif(runif(2,1,10),1,10)
+```
+
+# **Distribución Exponencial**
+
+La distribución exponencial es frecuentemente utilizada para modelar el tiempo entre eventos que ocurren de manera continua e independiente a una tasa constante. Es una distribución clave en el estudio de procesos de Poisson.
+
+La distribución exponencial no tiene memoria, lo que significa que la probabilidad de que ocurra un evento en un intervalo es independiente de cuándo ocurrió el último evento.
+
+Un único parámetro \\lambda la define completamente, donde \\lambda
+
+```{r}
+muestras <- 5000
+lambda <- 2 # llegadas/ud. tiempo, por ejemplo. Tiempo medio entre llegadas 1/2
+x <- rexp(muestras, rate = lambda)
+y <- lambda*exp(-lambda*x) # densidad calculada mediante fórmula
+
+df <- data.frame(x,y)
+df$fx <- dexp(df$x, rate = lambda) # densidad calculada por R con dexp
+df$Fx <- pexp(df$x, rate = lambda) # distribución acumulada calculada con R
+
+mean(abs(df$y - df$fx)) # Media de las diferencias entre ambos cálculos
+```
+
+## **Cálculos de probabilidades. Funciones: `pexp`, `dexp`, `qexp`, `rexp:`**
+
+### **`pexp`**
+
+```{r}
+#Una empresa de telecomunicaciones envía paquetes de datos en una red con un promedio que sigue una distribución exponencial. Si la tasa es de 10 paquetes por segundo, es decir, el tiempo medio entre llegadas es 0.1 segundos ¿cuál es la probabilidad de que el tiempo entre la llegada de dos paquetes consecutivos sea inferior a 0.1 segundos?
+pexp(0.1, rate = 10)
+#¿cuál es la probabilidad de que el tiempo entre la llegada de dos paquetes consecutivos sea superior a 0.2 segundos?
+pexp(0.2, rate = 10, lower.tail = FALSE)
+```
+
+### **`qexp`**
+
+```{r}
+#¿Cuál es la mediana, el Q1 y el Q3 del tiempo entre llegadas? ¿Y cuál es el tiempo entre llegadas para el percentil 99?
+qexp(0.5, rate = 10)
+qexp(0.25, rate = 10)
+qexp(0.75, rate = 10)
+qexp(0.99, rate = 10)
+
+# Generamos valores de x
+q <- seq(0, 100)/100
+# Calculamos los cuantiles (percentiles)
+x <- qexp(q, rate = lambda)
+perc_df <- data.frame(q = q[2:100], x = qexp(q, rate = lambda)[2:100])
+# Creamos el gráfico
+ggplot() +
+  geom_line(data = perc_df, aes(q, x), color="blue", linewidth = 1) +
+  labs(
+    title = bquote("Gráfica de cuantiles exp. " ~ lambda),
+    x = "Cuantiles",
+    y = "tiempo entre llegadas") +
+  theme_bw()
+```
+
+### **`rexp:`**
+
+```{r}
+#Generación aleatoria de n elementos, siguiendo la distribución
+rexp(1000, rate=lambda) %>%
+  boxplot()
+#Desviación estándar 1/\lambda: 
+rexp(50, rate=2) %>%
+  sd()
+rexp(10000, rate=2) %>%
+  sd()
+```
+
+| Continua                                                                                                                                 | Discreta                                                                                                                                                                      |
+|:-----------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Distribución de probabilidad definida por la función de densidad de probabilidad (FDP).                                                  | Distribución de probabilidad definida por la función de masa de probabilidad (FMP) o función de probabilidad.                                                                 |
+| Para un valor concreto, la probabilidad siempre es cero.                                                                                 | Las probabilidades para un valor concreto, se cualculan directamente con la función de probabilidad.                                                                          |
+| Para calcular probabilidades en un intervalo, se usa la función de distribución acumulada, que es la integral de la función de densidad. | Para calcular probabilidades en un intervalo discreto de valores, se usa la función de distribución acumulada, que es la suma acumulada de probabilidades en dicho intervalo. |
+| La Integral de la FDP sobre todo el espacio igual a 1.                                                                                   | Suma de probabilidades igual a 1.                                                                                                                                             |
+
+### Bernoulli:
+
+un experimento aleatorio con exactamente dos posibles resultados, "éxito" y "fracaso", en el que la probabilidad de éxito P es la misma cada vez que se realiza el experimento, al igual que la probabilidad de fracaso q=1−p, también permanece constante. Estos ensayos son la base de la distribución de Bernoulli.
+
+Por ejemplo, lanzar una moneda justa es un ensayo de Bernoulli. Si definimos "cara" como un éxito, entonces hay una probabilidad P("cara")=0.5 de obtener un éxito en cada lanzamiento de la moneda.
+
+Lanzar y dado y obtener cualquier número excepto "1" también es un ensayo de Bernoulli, cuya probabilidad de acierto es 5/6.
+
+### Funcion de probabilidad:
+
+```{r}
+# Probabilidad de éxito
+p <- 1/6
+
+# Crear un data frame para la probabilidad y distribución acumulada de Bernoulli
+bernoulli_df <- data.frame(
+  'x' = factor(c(-01, 0, 1, 2)),
+  'pmf' = c(0, 1 - p, p, 0)
+)
+bernoulli_df <- bernoulli_df %>%
+  mutate(c = cumsum(pmf))
+
+
+# Gráfica para la FMP de Bernoulli
+ggplot(bernoulli_df[2:3,], aes(x, y = pmf)) +
+  geom_col() +
+  labs(x = "Resultado (0 = fracaso, 1 = éxito)", y = "P(X = x)", title = "Función de Probabilidad de Bernoulli") +
+  theme_bw()
+
+
+# Gráfica para la distribución de probabilidad acumulada de Bernoulli
+ggplot(bernoulli_df[2:3,], aes(x, y = c)) +
+  geom_col() +
+  labs(x = "Resultado: 0 = fracaso, 1 = éxito", y = "Probabilidad (X <= x)", title = "Distribución de probabilidad acumulada de Bernoulli") +
+  theme_bw()
+```
+
+# **Distribución Binomial:**
+
+## **Características de la binomial**
+
+-   Hay un número fijo de ensayos (n)
+
+-   Cada ensayo es independiente de los demás
+
+-   La probabilidad de éxito (p) es la misma en cada ensayo
+
+-   La variable aleatoria de interés es el número de éxitos en los n ensayos
+
+    **Función de probabilidad o masa de probabilidad: dbinom()**
+
+```{r}
+#Ejemplo: Lanzar dos dados (2 ensayos) y éxito sería obtener un 
+#Podemos no obtener ninguno, obtener 1 u obtener 2.
+dos_dados <- data.frame(x = 0:2, p_x = dbinom(0:2, 2, 1/6))
+dos_dados <- dos_dados %>%
+  mutate(c = cumsum(p_x))
+ggplot(dos_dados, aes(x, p_x)) +
+       geom_col() +
+       scale_x_continuous(breaks = 0:10) +
+       labs(x = "Nº de aciertos (obtener un seis)", y = "Probabilidad (X = x)", title = "Función de probabilidad Binomial: 2 ensayos independientes (tirar 2 dados)") +
+       theme_bw()
+```
+
+##### **Función de distribución acumulada (CDF): `pbinom`**
+
+```{r}
+ggplot(dos_dados, aes(x, c)) +
+       geom_col() +
+       labs(x = "Nº de aciertos (obtener un seis)", y = "Probabilidad (X <= k)", title = "Función de distribución acumulada Binomial n = 2") +
+       theme_bw()
+```
+
+## **Cálculos de probabilidades y generación de variables. Funciones: `pbinom`, `dexp`, `qexp`, `rexp`**
+
+```{r}
+#Experimento: Lanzar 10 monedas (ensayos = 10). Posibles éxitos, de 0 a 10
+dbinom(x,           # Valores del eje X (x = 0, 1, 2, ..., n)
+       size,        # Número de ensayos (n > = 0)
+       prob,        # Probabilidad de éxito en cada ensayo
+       log = FALSE) # Si TRUE, las probabilidades se devuelven como log
+
+#Ejemplo: Obtener 7 caras en 10 lanzamientos
+dbinom(7,          # 7 éxitos (caras)
+       10,         # 10 intentos
+       0.5)        # Probabilidad de éxito en cada ensayo
+
+#Ejemplo con vector
+dbinom(0:10,          # de 0 a 10 éxitos
+       10,         # 10 intentos
+       0.5)
+
+ggplot(data.frame(x = 0:10, p_x = dbinom(0:10, 10, 0.5)),
+       aes(x, p_x)) +
+       geom_col() +
+       scale_x_continuous(breaks = 0:10) +
+       labs(x = "Nº de aciertos (obtener cara)", y = "Probabilidad (X = x)", title = "Función de probabilidad Binomial n = 10") +
+       theme_bw()
+```
+
+```{r}
+#La función de distribución acumulada
+ggplot(data.frame(x = 0:10, p_x = pbinom(0:10, 10, 0.5)),
+       aes(x, p_x)) +
+       geom_col() +
+       scale_x_continuous(breaks = 0:10) +
+       labs(x = "Nº de aciertos (obtener cara)", y = "Probabilidad (X <= k)", title = "Función de distribución acumulada Binomial n = 10") +
+       theme_bw()
+
+pbinom(q,                 # Cuantil o vector de cuantiles: éxitos
+       size,              # Número de experimentos (n > = 0)
+       prob,              # Probabilidad de éxito en cada experimento
+       lower.tail = TRUE, # Si TRUE, las probabilidades son P(X <= x), o P(X > x) en otro caso
+       log.p = FALSE)     # Si TRUE, las probabilidades se devuelven como log
+
+#Ejemplo: Probabilidad de obtener 4 o menos caras en 10 monedas al aire
+pbinom(4,10,0.5)
+
+
+#Ejemplo: Probabilidad de obtener 4 o menos caras en 10 monedas al aire
+pbinom(7,10,0.5, lower.tail = FALSE)
+1-pbinom(7,10,0.5)
+```
+
+## **Cuantiles (Inversa de la probabilidad acumulada):**
+
+```{r}
+
+qbinom((seq(1,10)/10), 10, 0.5)
+
+ggplot(data.frame(x =(seq(1,1000)/1000), q_x = qbinom((seq(1,1000)/1000), 10, 0.5)),
+       aes(x, q_x)) +
+       geom_step() +
+       scale_y_continuous(breaks = 0:10) +
+       labs(x = "Cuantiles", y = "Aciertos", title = "Representación cuantiles") +
+       theme_bw()
+
+```
+
+## **Generación de experimentos aleatorios con `rbinom`**
+
+```{r}
+rbinom(n,    # Número de observaciones aleatorias a ser generadas
+       size, # Número de ensayos (> = 0) si = 1 Bernoulli
+       prob) # La probabilidad de éxito en cada ensayo
+
+#Lanzar varias veces varias monedas:
+#Consideraremos éxitos las caras. Si en cada observación, lanzamos dos monedas:
+# 10 Observaciones:
+# En cada ensayo podemos tener 0, 1 o 2 aciertos:
+set.seed(1)
+rbinom(10, 2, 0.5)
+```
+
+### **Distribución Uniforme discreta:**
+
+La distribución uniforme discreta es una distribución de probabilidad donde un número finito de valores son igualmente probables de ser observados; cada uno de los `n` valores tiene la misma probabilidad `1/n`
+
+### **Boxplot:**
+
+```{r}
+lotr %>%
+  select(tamano, fuerza) %>%
+  sapply(scale) %>% 
+  as.data.frame() %>% 
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "valor") %>%
+  ggplot(aes(x = variable, y = valor, color = variable)) +
+    geom_boxplot() +
+    labs(
+      title = "LOTR: Fuerza vs Tamaño",
+      x = "Variable",
+      y = "Valor",
+      color = "Variable"
+    ) +
+    theme_bw()
+```
+
+### Densidad:
+
+```{r}
+lotr %>%
+  select_if(is.numeric) %>%
+  sapply(scale) %>%
+  as.data.frame() %>%
+  ggplot() +
+  geom_density(aes(x = fuerza, color = "Fuerza")) +
+  geom_density(aes(x = tamano, color = "Tamaño")) +
+  labs(
+    title = "Función de densidad comparativa con variables escaladas",
+    x = "Valor (z-score)",
+    y = "Densidad",
+    color = "Variable"
+  ) +
+  scale_color_manual(
+    values = c("Fuerza" = "red",
+               "Tamaño" = "blue")
+  ) +
+  theme_classic()
+```
+
+### **Diagrama de dispersión:**
+
+```{r}
+lotr %>%
+  ggplot() +
+  geom_point(aes(x = tamano, y = fuerza)) +
+  labs(
+    title = "Fuerza vs Tamaño",
+    x = "Tamaño",
+    y = "Fuerza"
+  ) +
+  geom_smooth(aes(x = tamano, y = fuerza)) +
+  geom_text_repel(aes(x = tamano, y = fuerza, label = nombre), size = 3, vjust = -1) +
+  theme_bw()
+lotr_sin_anillo <- lotr %>%
+  filter(nombre != "EL_ANILLO_UNICO")
+
+```
+
+## **Covarianza Y Correlación:**
+
+**Covarianza:** Es una medida de la fuerza de la relación entre dos variables cuantitativas. Si la covarianza es positiva, existe una relación creciente entre x e y, si es negativa, la relación será decreciente.
+
+Ejemplo: Relación entre tamaño y fuerza en LOTR (TOP TRUMPS)
+
+Cálculo de la covarianza (con y sin el anillo):
+
+```{r}
+sum(((lotr$tamano - mean(lotr$tamano)) * (lotr$fuerza - mean(lotr$fuerza)))/(nrow(lotr)-1))
+
+sum(((lotr_sin_anillo$tamano - mean(lotr_sin_anillo$tamano)) * (lotr_sin_anillo$fuerza - mean(lotr_sin_anillo$fuerza)))/(nrow(lotr_sin_anillo)-1))
+
+cov(lotr$tamano, lotr$fuerza)
+
+cov(lotr_sin_anillo$tamano, lotr_sin_anillo$fuerza)
+```
+
+En la covarianza, el signo es lo importante y no el valor numérico. Los datos vendrán con diferentes unidades y tendrán diferente significado, solo mide en qué dirección varían los datos.
+
+**Correlacion:**La varianza solo informa de la dirección en la que varían los datos, dividiendo la covarianza por el producto la desviación estándar de x e y, obtenemos un coeficiente de correlación que varía entre -1 y 1, siendo -1 y 1 una relación lineal perfecta entre ambas variables.
+
+```{r}
+cov(lotr$fuerza, lotr$tamano)/(sd(lotr$tamano)*sd(lotr$fuerza))
+cor(lotr$tamano, lotr$fuerza)
+cor(lotr_sin_anillo$tamano, lotr_sin_anillo$fuerza)
+cor(lqsa$Locura, lqsa$Convivencia)
+
+ lotr %>%
+  ggplot(aes(x = magia, y = miedo)) +
+  geom_point() +
+  labs(
+    title = "Relación no lineal entre magia y miedo",
+    x = "Magia",
+    y = "Miedo"
+  ) +
+  geom_smooth() +
+  geom_text_repel(aes(label = nombre), size = 3, vjust = -1) +
+  theme_bw()
+ cor(lotr$magia, lotr$miedo)
+```
+
+### **Matriz de correlación:**
+
+Realizar el cálculo de correlación entre todas las variables de un data frame, podría ser algo tedioso. Afortunadamente, podemos calcular y visualizar la matriz de correlación mediante funciones que R tiene para ello.
+
+```{r}
+lotr_sin_anillo %>%
+  select_if(is.numeric) %>%
+  filter(tamano > 1) %>%
+  cor()
+
+lotr_sin_anillo %>%
+  select_if(is.numeric) %>%
+  cor() %>%
+  corrplot(method = "circle")
+
+lqsa %>%
+  select_if(is.numeric) %>%
+  cor() %>%
+  corrplot(method= "square", type = "lower")
+
+harry_potter %>%
+  select_if(is.numeric) %>%
+  cor() %>%
+  corrplot(method = "color")
+```
+
+**Los dos tipos principales de problemas que se aboradaran durante el curso son de regresión y de clasificación.**
+
+**Problemas de Regresión:** Los problemas de regresión buscan **predecir valores continuos**. Esto significa que estamos interesados en averiguar cuánto o cuántos.
+
+Por ejemplo: Predicción de precios, Estimaciones de tiempo, Pronóstico de ventas, Predicciones de demanda.
+
+**Problemas de Clasificación:** Los problemas de clasificación, por otro lado, implican **asignar categorías** a los datos. Estamos interesados en saber qué o cuál categoría.
+
+Por ejemplo:Diagnóstico médico, Reconocimiento de imágenes, Aprobación de crédito, Fuga de clientes o empleados (churn)
+
+## **Regresión:**
+
+La regresión es una herramienta estadística que nos permite explorar y establecer la relación entre dos o más variables. Hemos de pensar en una variable como una característica que puede cambiar y que podemos medir. Por ejemplo, la relación entre las horas de estudio y las calificaciones de un examen, o entre la temperatura y el consumo energético. Hay diferentes tipos de regresión:
+
+-   **Regresión lineal:** Cuando la relación entre las variables es lineal. Cuando solamente hay una variable predictora, se trata de una línea recta.
+
+-   **Regresión Logística**: Utilizada cuando la variable que queremos predecir es categórica, como sí/no.
+
+-   **Regresión Polinomial**: Cuando la relación no es una línea recta, sino más curvada o compleja.
+
+# **Modelo de Regresión lineal simple**
+
+Ahora, vamos a enfocarnos en el modelo de regresión lineal simple. Este modelo solo considera dos variables: una independiente y una dependiente. La variable independiente es la causa presumida, mientras que la variable dependiente es el efecto.
+
+La relación entre estas dos variables se representa con la siguiente ecuación:
+
+-   Y = a + bX
+
+-   Y es la variable dependiente que queremos predecir.
+
+-   X es la variable independiente que usamos para hacer la predicción.
+
+-   a es la intersección con el eje Y (ordenada en el origen), también conocida como el término de intercepción, que representa el valor esperado de Y cuando X es 0.
+
+-   b es la pendiente, que indica cuánto cambia Y en promedio cuando X cambia en una unidad.
+
+```{r}
+b <- sum((lotr_sin_anillo$tamano - mean(lotr_sin_anillo$tamano)) * 
+  (lotr_sin_anillo$fuerza - mean(lotr_sin_anillo$fuerza))
+) / 
+  sum((lotr_sin_anillo$tamano - mean(lotr_sin_anillo$tamano))**2)
+b
+
+
+b <- cov(lotr_sin_anillo$tamano, lotr_sin_anillo$fuerza) /
+  var(lotr_sin_anillo$tamano)
+b
+
+a <- mean(lotr_sin_anillo$fuerza) - b * mean(lotr_sin_anillo$tamano)
+a
+
+
+modelo_f_tam <- lm(fuerza ~ tamano, data = lotr_sin_anillo)
+modelo_f_tam
+```
+
+### **Generando el modelo de regresión lineal simple con la función `lm:`**
+
+En su forma más básica, debemos especificar los parámetros: fórmula y data. Si miramos la documentación, vemos que el parámetro fórmula, debe ser un objeto de la clase fórmula. A modo simplificado, requiere una notación del tipo y = f(x) ---\> `formula = y ~ x`
+
+```{r}
+#Si, a partir del número de reclamaciones queremos estimar el precio del seguro, nuestra variable objetivo será el precio y nuestra predictora el número de reclamaciones
+objeto_modelo <- lm(formula = total_payment_sek ~ n_claims, data = swedish_motor_insurance)
+print(objeto_modelo)
+```
+
+### **Predicciones con `predict`:**
+
+```{r}
+swedish_motor_insurance %>%
+  mutate(prediction_payment_sek = predict(objeto_modelo, 
+                                    newdata = select(., n_claims))) %>%
+  ggplot() +
+    geom_point(aes(x = n_claims, y = total_payment_sek), color = "blue") + 
+    geom_point(aes(x = n_claims, y = prediction_payment_sek), color = "red", alpha = 0.5) +
+    theme_bw()
+```
+
+### **Las métricas principales del modelo:**
+
+```{r}
+mdl_lqsa_conv_vs_locura <- lm(formula = Convivencia ~ Locura, data = lqsa)
+mdl_lqsa_conv_vs_locura
+
+typeof(mdl_lqsa_conv_vs_locura) ## Tipo interno en R
+class(mdl_lqsa_conv_vs_locura) ## Clase del objeto
+```
+
+### **Coeficiente de determinación R cuadrado (r-squared)**
+
+El parámetro estadístico **r-cuadrado** es una medida que nos indica el nivel de cercanía entre los datos y la línea de regresión ajustada. Se conoce también como coeficiente de determinación. Es frecuente encontrar en la bibliografía el término *r*-squared en minúscula cuando hablamos de regresión lineal simple y *R*-squared cuando tenemos más de una variable predictora.
+
+El coeficiente nos dice qué porcentaje de la varianza explica el modelo.
+
+-   Puede tomar valores **entre 0 y 1**
+
+-   1 significa ajuste perfecto
+
+-   0 significa que el modelo no explica la variabilidad de los datos de respuesta para los predictores la muestra.
+
+-   En general, cuanto mayor es r-cuadrado, mejor se ajusta el modelo a los datos.
+
+```{r}
+r_squared <- lqsa %>%
+  mutate(Conv_pred = predict(object = mdl_lqsa_conv_vs_locura, 
+                        newdata = select(., Locura))) %>%
+  summarise(r_squared = 1-sum((Convivencia - Conv_pred)**2) /
+            sum((Convivencia - mean(Convivencia))**2)) %>% pull()
+r_squared
+```
+
+### **Coeficiente de determinación ajustado R cuadrado ajustado**
+
+```{r}
+n <- nrow(lqsa)
+k <- 1 # Grados de libertad (nº de var. ind.)
+adj_r_squared <- 1 - ( (n-1)/(n-k-1) )*(1 - r_squared)
+adj_r_squared
+```
+
+### **Error residual estándar (RSE / sigma): Grados de libertad**
+
+```{r}
+residuos <- residuals(mdl_lqsa_conv_vs_locura)
+n <- length(residuos)
+p <- length(coef(mdl_lqsa_conv_vs_locura))
+
+# Calcula el RSE
+RSE <- sqrt(sum(residuos^2) / (n - p))
+RSE
+```
+
+### **Error cuadrático medio (RMSE)**
+
+```{r}
+RMSE <- sqrt(sum(residuos^2) / (n))
+RMSE
+```
+
+## **Funciones para analizar modelos y métricas detalladas**
+
+```{r}
+#Resumen: summary()
+resumen_mdl <- summary(mdl_lqsa_conv_vs_locura)
+resumen_mdl
+
+broom::tidy()
+broom::tidy(mdl_lqsa_conv_vs_locura)
+
+glance(mdl_lqsa_conv_vs_locura)
+
+#sigma: estimación de la desviación estándar de los errores: n-k-1
+
+#statistic: F-statistic. Es un parámetro que se obtiene comparando dos modelos, uno con todos los coeficientes y otro sin incluir predictores.
+
+#p.value: A partir del parámetro anterior, y usando la distribución F, se obtiene el p-valor como la probabilidad de encontrar un valor tan extremo o más que F_statictic según la distribución F. Usamos la función de distrubución de probabilidad acumulada pf
+
+#df: Grados de libertad (nº de variables predictoras)
+
+#logLik: El logaritmo de la verosimilitud del modelo. Es una medida de cuán bien se ajusta el modelo a los datos, y se utiliza en la comparación de modelos. en la práctica, se usa junto con otros criterios, como AIC y BIC. Un valor más alto indica un mejor ajuste.
+
+
+```
