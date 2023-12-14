@@ -1,0 +1,175 @@
+---
+title: 'Analisis LQSA'
+author: 'Equipo 2'
+format: html
+editor: visual
+---
+
+```{r echo =FALSE}
+df <- read.csv('C:\\Users\\angel\\Desktop\\csv.csv')
+
+library(ggplot2)
+
+ggplot(df, aes(x=Poder)) +
+  geom_histogram(bins=30)
+ggplot(df, aes(x=Liante)) +
+  geom_histogram(bins=30)
+ggplot(df, aes(x=Locura)) +
+  geom_histogram(bins=30)
+ggplot(df, aes(x=Convivencia)) +
+  geom_histogram(bins=30)
+ggplot(df, aes(x=Atractivo)) +
+  geom_histogram(bins=30)
+
+print('Media')
+
+media <- mean(df$Poder)
+media
+media <- mean(df$Liante)
+media
+media <- mean(df$Atractivo)
+media
+media <- mean(df$Locura)
+media
+media <- mean(df$Convivencia)
+media
+
+print('Mediana')
+
+mediana <- median(df$Poder)
+mediana
+mediana <- median(df$Liante)
+mediana
+mediana <- median(df$Atractivo)
+mediana
+mediana <- median(df$Locura)
+mediana
+mediana <- median(df$Convivencia)
+mediana
+
+print('Moda')
+
+tabla_frecuencias <- table(df$Poder)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Liante)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Convivencia)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Locura)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Atractivo)
+moda <- as.numeric(names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Grupo_edad)
+moda <- (names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+tabla_frecuencias <- table(df$Sexo)
+moda <- (names(tabla_frecuencias)[which.max(tabla_frecuencias)])
+moda
+
+print('Diagramas')
+
+tabla_frecuencias_sexo <- table(df$Sexo)
+pie(tabla_frecuencias_sexo, main = "Distribución de Sexo")
+tabla_frecuencias_sexo <- table(df$Grupo_edad)
+pie(tabla_frecuencias_sexo, main = "Distribución de Grupo Edad")
+tabla_frecuencias_sexo <- table(df$Poder)
+pie(tabla_frecuencias_sexo, main = "Distribución de Poder")
+tabla_frecuencias_sexo <- table(df$Locura)
+pie(tabla_frecuencias_sexo, main = "Distribución de Locura")
+tabla_frecuencias_sexo <- table(df$Atractivo)
+pie(tabla_frecuencias_sexo, main = "Distribución de Atractivo")
+tabla_frecuencias_sexo <- table(df$Liante)
+pie(tabla_frecuencias_sexo, main = "Distribución de Liante")
+tabla_frecuencias_sexo <- table(df$Convivencia)
+pie(tabla_frecuencias_sexo, main = "Distribución de Convivencia")
+
+print('Varianza')
+
+varianza_R <- var(df$Poder)
+varianza_R
+varianza_R <- var(df$Liante)
+varianza_R
+varianza_R <- var(df$Locura)
+varianza_R
+varianza_R <- var(df$Atractivo)
+varianza_R
+varianza_R <- var(df$Convivencia)
+varianza_R
+
+dists <- df$df_total - mean(df$Poder)
+dists
+dists <- df$df_total - mean(df$Locura)
+dists
+
+max(df$Poder) - min(df$Poder)
+max(df$Locura) - min(df$Locura)
+max(df$Atractivo) - min(df$Atractivo)
+max(df$Liante) - min(df$Liante)
+max(df$Convivencia) - min(df$Convivencia)
+
+range(df$Poder)
+range(df$Locura)
+range(df$Atractivo)
+range(df$Liante)
+range(df$Convivencia)
+
+
+datos_numericos <- df[sapply(df, is.numeric)]
+IQR_variables <- apply(datos_numericos, 2, IQR)
+print(IQR_variables)
+
+
+quantile(df$Poder)
+quantile(df$Locura)
+quantile(df$Atractivo)
+quantile(df$Liante)
+quantile(df$Convivencia)
+
+seq(1, 17, 1)
+
+deciles <- seq(0, 1, 0.1)
+quantile(df$Poder, probs = deciles)
+
+
+percentiles <- seq(0, 1, 0.01)
+quantile(df$Poder, probs = deciles)
+
+
+library(ggradar)
+library(readr)
+
+radartt <- function(baraja, pers) {
+  df_filtrado <- baraja[baraja$Nombre %in% pers, ]
+  
+  df_para_radar <- df_filtrado[, c("Poder", "Convivencia", "Liante", "Atractivo", "Locura")]
+  
+  # Escalamos los datos por rango para cada columna numérica
+  df_escalado <- as.data.frame(lapply(df_para_radar, function(x) (x - min(x)) / (max(x) - min(x))))
+  
+  # Añadimos la columna de nombres para identificar cada radar
+  df_escalado$Nombre <- df_filtrado$Nombre
+  
+  # Reordenamos las columnas para poner "Nombre" al principio
+  df_escalado <- df_escalado[, c("Nombre", "Poder", "Convivencia", "Liante", "Atractivo", "Locura")]
+  
+  # Creamos el gráfico de radar
+  ggradar(df_escalado, 
+          axis.labels = c("Poder", "Convivencia", "Liante", "Atractivo", "Locura"),
+          grid.min = 0, 
+          grid.mid = 0.5, 
+          grid.max = 1,
+          grid.label.size = 3,
+          legend.text.size = 3)
+    
+}
+
+radartt(df, c("Ongombo", "Violeta"))
+
+
+
+```
