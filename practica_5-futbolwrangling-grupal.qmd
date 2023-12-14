@@ -1,0 +1,259 @@
+---
+title: "PRIA práctica 5: Fútbol wrangling"
+author: "Jose García, Adrian Lozano, Javier Ortega, Ángel García"
+format: html
+editor: visual
+---
+
+# Instrucciones generales
+
+Esta práctica se ha de realizar por grupos de entre 3 y 5 personas. En la cabecera del fichero entregable, debéis indicar los nombres de todos los alumnos del grupo.
+
+Se recomienda usar un tablero kanban, como trello para comunicaciones entre miembros del equipo, seguimiento de tareas, etc.
+
+# 1. Descargando datos externos
+
+Ve a https://www.football-data.co.uk/spainm.php observa los enlaces con los datos de la liga primera y segunda división. Observa los nombres de las ligas europeas.
+
+Descarga desde el navegador el fichero más actualizado. SP1.csv
+
+Observa bien la url de descarga y trata de obtener el fichero dentro de script de R con la función download.file
+
+## 1.1 Automatización de descargas de datos históricos
+
+Realiza un script en R para descargar de forma automática todos los archivos desde la temporada 2000/2001 hasta la temporada pasada (2022/2023). Intenta evitar bucles innecesarios y repetición de código. Preferiblemente, usa la familia apply.
+
+Fíjate que la estructura de la url cambia ligeramente, aunque los nombres de los archivos se llaman igual. Ponle a los archivos de salida el formato 2122_SP1.csv, donde 2122 es la temporada 2021/2022 y SP1 indica la liga (Spain, 1º div).
+
+La actividad se va a limitar a la 1º y 2º división españolas, liga inglesa, alemana e italiana.
+
+```{r}
+
+library(R.utils)
+
+base_url <- "https://www.football-data.co.uk/mmz4281/"
+opciones <- c('SP1', 'SP2', 'E0', 'D1', 'I1')
+secuencia <- sprintf("%02d%02d", 0:23, 1:24)
+
+for (opcion in opciones) {
+  for (sec in secuencia) {
+    # Generación de la secuencia de años para poder llamar a todos los años 1 a 1
+    año1 <- as.numeric(substr(sec, 1, 2))
+    año2 <- as.numeric(substr(sec, 3, 4))
+    
+    url <- sprintf("%s%02d%02d/%s.csv", base_url, año1, año2, opcion)
+    destfile <- sprintf("%s_%s.csv", opcion, sec)
+    download.file(url, destfile = destfile, mode = "wb")
+    cat(sprintf("Archivo %s descargado con éxito.\n", destfile))
+  }
+}
+
+```
+
+## 1.2 Descargar último dato
+
+Realiza un script en R para descargar de forma automática todos los archivos desde la temporada 2000/2001 hasta la temporada pasada (2022/2023). Intenta evitar bucles innecesarios y repetición de código. Preferiblemente, usa la familia apply.
+
+Fíjate que la estructura de la url cambia ligeramente, aunque los nombres de los archivos se llaman igual. Ponle a los archivos de salida el formato 2122_SP1.csv, donde 2122 es la temporada 2021/2022 y SP1 indica la liga (Spain, 1º div).
+
+La actividad se va a limitar a la 1º y 2º división españolas, liga inglesa, alemana e italiana.
+
+```{r}
+
+descargar_ultima_temporada <- function(liga) {
+  
+  anio_actual <- as.numeric(format(Sys.Date(), "%Y"))
+  
+  mes_actual <- as.numeric(format(Sys.Date(), "%m"))
+  temporada <- ifelse(mes_actual >= 8, 
+                      paste0(anio_actual - 2000, anio_actual - 1999), 
+                      paste0(anio_actual - 2001, anio_actual - 2000))
+    url <- paste0("https://www.football-data.co.uk/mmz4281/", temporada, "/", liga, ".csv")
+  
+  archivo_salida <- paste0(temporada, "_", liga, ".csv")
+  download.file(url, archivo_salida, mode = "wb")
+  paste("Archivo descargado: ", archivo_salida)
+}
+
+descargar_ultima_temporada("SP1")
+
+```
+
+# 2. Data Wrangling
+
+La información relevante de los datos está contenida en las variables:
+
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR,HTHG,HTAG,HTR En la siguiente url, se indica qué es cada variable:
+
+Significado
+
+Realiza una exploración de los datos del último fichero
+
+# 2.1 Seleccionar columnas de interés
+
+```{r}
+library(dplyr)
+
+df <- read.csv("SP1_2324.csv")
+
+df_seleccionado <- df %>% 
+  select(Div, Date, HomeTeam, AwayTeam, FTHG, FTAG, FTR, HTHG, HTAG, HTR)
+print(df_seleccionado)
+```
+
+# 2.2 Pivote, unión y ordenación de datos
+
+Realiza la manipulación de datos oportuna, suponiendo que una victora son 3 puntos y un empate 1 punto. La estructura debe contener:
+
+Puntos (pts), partidos jugados (PJ), partidos ganados (PG), perdidos (PP), empatados (PE), goles a favor (GF), goles en contra (GC)
+
+Imprime la clasificación actual de la liga en el formato:
+
+Clasificación
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+df <- read.csv("SP1_2324.csv")
+
+df <- df %>%
+  mutate(Puntos = case_when(
+    FTR == "H" ~ 3,  # Local
+    FTR == "D" ~ 1,  # Empate
+    FTR == "A" ~ 0   # Visitante
+  ))
+
+df_visitante <- df %>%
+  mutate(HomeTeam = AwayTeam,
+         FTHG = FTAG, FTAG = FTHG,
+         Puntos = case_when(
+           FTR == "A" ~ 3,  # Visitante
+           FTR == "D" ~ 1,  # Empate
+           FTR == "H" ~ 0   # Local
+         ))
+
+df_combinado <- bind_rows(df, df_visitante)
+clasificacion <- df_combinado %>%
+  group_by(HomeTeam) %>%
+  summarise(
+    PJ = n(),
+    PG = sum(FTR == "H"),
+    PE = sum(FTR == "D"),
+    PP = sum(FTR == "A"),
+    GF = sum(FTHG),
+    GC = sum(FTAG),
+    Pts = sum(Puntos)
+  ) %>%
+  arrange(desc(Pts))
+
+print(clasificacion)
+```
+
+# 3. Base de datos Ligas
+
+Implementa una función que reciba como parámetros la liga y la temporada e imprima la clasificación. Si la temporada es la actual, debe actualizarse el fichero, usando la función del ejercicio 1.2
+
+Las posibles ligas y temporadas serán las indicadas en el ejercicio
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+descargar_archivo_temporada <- function(liga) {
+  anio_actual <- as.numeric(format(Sys.Date(), "%Y"))
+  
+  mes_actual <- as.numeric(format(Sys.Date(), "%m"))
+  temporada <- ifelse(mes_actual >= 8, 
+                      paste0(anio_actual - 2000, anio_actual - 1999), 
+                      paste0(anio_actual - 2001, anio_actual - 2000))
+  
+  url <- paste0("https://www.football-data.co.uk/mmz4281/", temporada, "/", liga, ".csv")
+  
+  archivo_salida <- paste0(temporada, "_", liga, ".csv")
+  download.file(url, archivo_salida, mode = "wb")
+  paste("Archivo descargado: ", archivo_salida)
+}
+
+crear_clasificacion <- function(nombre_liga, temporada) {
+
+    año_actual <- format(Sys.Date(), "%Y")
+  temporada_actual <- ifelse(as.numeric(substr(año_actual, 3, 4)) == temporada, TRUE, FALSE)
+  
+
+    if (temporada_actual) {
+    descargar_archivo_temporada(nombre_liga)
+  }
+  
+  archivo <- sprintf("%s_%s.csv", nombre_liga, temporada)
+  datos <- read.csv(archivo)
+  
+  clasificacion <- datos %>%
+    mutate(Puntos = case_when(
+      FTR == "H" ~ 3,
+      FTR == "D" ~ 1,
+      TRUE ~ 0
+    )) %>%
+    group_by(HomeTeam) %>%
+    summarise(
+      PJ = n(),
+      PG = sum(FTR == "H"),
+      PE = sum(FTR == "D"),
+      PP = sum(FTR == "A"),
+      GF = sum(FTHG),
+      GC = sum(FTAG),
+      Pts = sum(Puntos)
+    ) %>%
+    arrange(desc(Pts))
+    print(clasificacion)
+}
+
+crear_clasificacion("SP1", "2223")
+```
+
+# 4. Exploración de los datos
+
+Representa gráficamente el promedio de goles por partido temporada a temporada en la que se vea una comparativa histórica entre primera y segunda división.
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+temporadas <- sprintf("%02d%02d", 0:23, 1:24)  
+divisiones <- c("SP1", "SP2")  #
+
+leer_y_procesar <- function(division, temporada) {
+  archivo <- sprintf("%s_%s.csv", division, temporada)
+  
+  if (!file.exists(archivo)) {
+    return(data.frame())  
+  }
+
+  datos <- tryCatch({
+    read_csv(archivo, show_col_types = FALSE)
+  }, error = function(e) {
+    message("Error al leer el archivo: ", archivo, "\n", e)
+    return(data.frame())
+  })
+
+  promedio_goles <- mean(datos$FTHG + datos$FTAG, na.rm = TRUE)
+  
+  data.frame(
+    Division = ifelse(division == "SP1", "Primera", "Segunda"),
+    Temporada = temporada,
+    PromedioGoles = promedio_goles
+  )
+}
+
+
+datos_combinados <- expand.grid(Division = divisiones, Temporada = temporadas) %>%
+  pmap_dfr(~ leer_y_procesar(..1, ..2))
+ggplot(datos_combinados, aes(x = Temporada, y = PromedioGoles, color = Division)) +
+  geom_point() +
+  labs(title = "Promedio de Goles por Partido Temporada a Temporada",
+       x = "Temporada", y = "Promedio de Goles") +
+  theme_minimal()
+
+
+```
