@@ -1,0 +1,269 @@
+---
+title: "Clase dia 09/01"
+format: html
+editor: visual
+---
+
+## **Unidad 3: Determinación de Sistemas de Aprendizaje automático**
+
+```{r}
+library(tidyverse)
+library(broom)
+library(purrr)
+library(plotly)
+```
+
+Regresión lineal es un problema de regresión y numérico.
+
+\^y es mi valorpredictora e y es la valor real, `Y^ = mX + b`
+
+Donde `Y` es el resultado, `X` es la variable, `m` la pendiente (o coeficiente) de la recta y `b` la constante o también conocida como el "punto de corte con el eje Y" en la gráfica (cuando `x=0`).
+
+Residuo es la diferencia entre el valor real y el valor predictivo.
+
+```{r}
+
+library(tidyverse)
+library(broom)
+library(purrr)
+library(plotly)
+# Leemos el fichero: viene en formato .rds (formato de r comprimido)
+grillos <- read_rds("https://raw.githubusercontent.com/jesusturpin/curintel2324/main/data/grillos.rds")
+
+
+
+# Examinamos el dataset:
+glimpse(grillos)
+
+
+
+# Visualizamos el resumen de los datos
+summary(grillos)
+
+
+
+
+# La variable especie es categórica, pero está en formato chr. La convertimos a factor, de este modo, averiguamos cuántas especies hay y cuáles son:
+grillos$especie <- factor(grillos$especie)
+
+
+
+# Visualizamos de nuevo el resumen de los datos
+summary(grillos)
+
+
+
+# Buscamos posibles errores en los datos: hay una frecuencia negativa!!
+grillos %>%
+  filter(freq <= 0)
+
+# Eliminamos el error
+grillos <- grillos %>%
+  filter(freq > 0)
+
+grillos %>%
+  ggplot(aes(freq, temp))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE)+  
+  theme_bw()
+
+
+# calculamos la correlación lineal:
+cor(grillos$freq, grillos$temp)
+
+
+#Creamos un modelo de regresión lineal simple que sirva para predecir la temperatura en función de la frecuencia.
+mdl_temp_vs_freq <- lm(data = grillos, formula = temp ~ freq) #variable objetivo ~ variable predictora
+mdl_temp_vs_freq
+
+
+
+# Evaluamos el modelo: Coeficiente de determinación (R^2) (calculado)
+1 - (sum((residuals(mdl_temp_vs_freq))**2) / (sum((grillos$temp - mean(grillos$temp))**2)))
+
+
+# Resumen del modelo (fórmula, coeficientes y métricas más importantes)
+summary(mdl_temp_vs_freq)
+
+
+# Resumen "ordenado": métricas
+broom::glance(mdl_temp_vs_freq)
+
+
+# Resumen "ordenado": coeficientes
+broom::tidy(mdl_temp_vs_freq)
+
+
+
+
+# Obtenemos los coeficientes del modelo:
+coeffs <- coefficients(mdl_temp_vs_freq)
+coeffs
+
+
+b <- coeffs[1] # ordenada en el origen (Intercept)
+m <- coeffs[2] # pendiente (freq)
+freq_9am <- 100
+
+
+t_9am <- b + m*freq_9am # Y = b + mx
+t_9am
+
+
+
+
+# A las 3 de la tarde: 200 cantos por segundo
+freq_3pm <- 200
+t_3pm <- b + m*freq_3pm # Y = b + mx
+t_3pm
+
+# Tenemos 34.03 º a las 3 pm. Calculamos el RMSE
+# Error cuadrático medio: MSE --> Raiz MSE RMSE 
+MSE <- sum(residuals(mdl_temp_vs_freq)**2)/(nrow(grillos))
+RMSE <- sqrt(MSE)
+RMSE # grados
+
+
+# Aumento de la temperatura en grados
+t_3pm - t_9am
+
+
+
+test_grillos <- expand.grid(
+  freq = c(100,200)
+)
+
+test_grillos %>%
+  mutate(temp = predict(mdl_temp_vs_freq,
+                        newdata = select(., freq))) #select(test_grillos, freq)
+
+
+
+#Regresion lineal multiple
+
+
+mdl_temp_vs_esp <- lm(temp ~ especie, grillos)
+mdl_temp_vs_esp
+
+
+ # Añadir + 0, modifica el nombre del coeficiente, pero no cambia el modelo
+mdl_temp_vs_freq_esp_dummy <- lm(temp ~ especie + 0, grillos)
+mdl_temp_vs_freq_esp_dummy
+
+
+# Crear un nuevo data frame con las predicciones
+predicciones <- data.frame(especie = unique(grillos$especie),
+                           Predicted = predict(mdl_temp_vs_esp, newdata = data.frame(especie = unique(grillos$especie))))
+
+# Datos originales y las predicciones
+ggplot(grillos, aes(x = especie, y = temp)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +  # Usamos geom_jitter para evitar superposiciones
+  geom_point(data = predicciones, aes(x = especie, y = Predicted), color = "red", size = 4, shape = "square") +
+  labs(title = "Predicción de la temperatura ambiente por Especie de grillo", x = "Especie", y = "Temperatura") +
+  theme_bw()
+
+
+summary(mdl_temp_vs_freq_esp_dummy)
+
+
+grillos %>%
+  group_by(especie) %>%
+  summarise("coeficientes(media)" = mean(temp))
+
+
+mdl_temp_vs_freq_esp <- lm(temp ~ especie + freq, grillos)
+coefficients(mdl_temp_vs_freq_esp)
+
+
+
+mdl_temp_vs_freq_esp <- lm(temp ~ especie + freq + 0, grillos)
+coefficients(mdl_temp_vs_freq_esp)
+
+
+grillos %>%
+ggplot(aes(freq, temp, color = especie)) +
+  geom_point() +
+  moderndive::geom_parallel_slopes(se = FALSE)+
+  theme_bw()
+
+
+test_grillos <- expand.grid(
+  freq = c(100,200),
+  especie = unique(grillos$especie)
+)
+test_grillos %>%
+  mutate(temp = predict(mdl_temp_vs_freq_esp,
+                        newdata = .)) # el . indica todas las predictoras
+
+
+
+
+
+```
+
+```{r}
+test_grillos <- expand.grid(
+  freq = c(50),
+  especie = c("Ensifera", "Gryllus campestris")
+)
+test_grillos %>%
+  mutate(temp = predict(mdl_temp_vs_freq_esp,
+                        newdata = .)) # el . indica todas las predictoras
+
+coefficients(test_grillos)
+
+coeffs <- coefficients(mdl_temp_vs_freq_esp)
+print(coeffs)
+
+b1 <- 10.744776
+freq <- 50
+beta <- 0.151369
+  
+b1 + beta*freq
+b2 <- 3.233593
+
+b2 + beta*freq
+b3 <- -2.975214
+
+b3 + beta*freq
+
+
+#Y –> Es el valor real, no el del modelo
+# –> Es el valor que calcula el modelo
+#b1 -> Coeficiente Ensifera
+#D1 -> Variable Independiente Ensifera
+#b2 -> Coeficiente Campestri
+#D2 -> Variable Independiente Campestri
+#b3 -> Coeficiente Fultoni
+#D3 -> Variable Independiente Fultoni
+#freq -> 50
+# –> El error residual (variable aleatoria)
+
+
+#EJERCICIO 2
+#Este ejercicio nose como arrancar y no entiendo muy bien como hacer, si se pudiera corregir contigo en clase o sino con la solucion chatgpt me podra ayudar a entenderr
+
+mdl_temp_vs_freq_esp_inter <- lm(temp ~ especie + freq + especie:freq + 0, grillos)
+coeffs <- coefficients(mdl_temp_vs_freq_esp_inter)
+coeffs
+
+#EJERCICIO 3
+
+
+grillos_ensifera <- grillos[grillos$especie == "Ensifera", ]
+grillos_campestris <- grillos[grillos$especie == "Gryllus campestris", ]
+grillos_fultoni <- grillos[grillos$especie == "Oecanthus fultoni", ]
+
+modelo_ensifera <- lm(temp ~ freq, data = grillos_ensifera)
+modelo_campestris <- lm(temp ~ freq, data = grillos_campestris)
+modelo_fultoni <- lm(temp ~ freq, data = grillos_fultoni)
+
+
+coeficientes_ensifera <- coefficients(modelo_ensifera)
+coeficientes_campestris <- coefficients(modelo_campestris)
+coeficientes_fultoni <- coefficients(modelo_fultoni)
+
+print(coeficientes_ensifera)
+print(coeficientes_campestris)
+print(coeficientes_fultoni)
+```

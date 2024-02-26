@@ -1,0 +1,365 @@
+---
+title: "Unidad 3(CARTs): Determinación de Sistemas de Aprendizaje automático"
+subtitle: "Árboles de decisión: clasificación"
+autor: "Jesús Turpín"
+format:
+  html:
+    code-fold: true
+editor: visual
+toc: true
+toc-depth: 3
+bibliography: SAA_U3_refs.bib
+---
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+# library(bayesQR)
+# library(broom)
+# library(corrplot)
+library(yardstick)
+library(pROC)
+#library(ggrepel)
+# library(purrr)
+# library(plotly)
+```
+
+## Algoritmos de Machine Learning
+
+-   Regresión Lineal
+
+-   Regresión Logística
+
+-   **Árboles de Decisión**
+
+-   k Nearest Neighbor
+
+-   SVM
+
+-   Naive Bayes
+
+-   Clustering jerárquico
+
+-   K-Means
+
+-   PCA
+
+-   Redes Neuronales
+
+-   Aprendizaje profundo
+
+## ¿Qué es un árbol de decisión?
+
+@aprende_ml_espanol
+
+Los arboles de decisión son representaciones gráficas de posibles soluciones a una decisión basadas en ciertas condiciones, es uno de los algoritmos deaprendizaje supervisado más utilizados en machine learning y pueden realizar tareas de clasificación o regresión (acrónimo del inglés [CART](https://en.wikipedia.org/wiki/Classification_and_regression_tree)).
+
+La comprensión de su funcionamiento suele ser simple y a la vez muy potente. Utilizamos mentalmente estructuras de árbol de decisión constantemente en nuestra vida diaria sin darnos cuenta:
+
+¿Llueve? --\> lleva paraguas.
+
+¿Soleado? --\> lleva gafas de sol.
+
+¿Estoy cansado? --\> toma café.
+
+Son Decisiones del tipo IF THIS, THEN THAT
+
+Los árboles de decisión tienen un primer nodo llamado raíz (root) y luego se descomponen el resto de atributos de entrada en dos ramas (podrían ser más, pero no nos meteremos en eso ahora) planteando una condición que puede ser cierta o falsa. Se bifurca cada nodo en 2 y vuelven a subdividirse hasta llegar a las hojas que son los nodos finales y que equivalen a respuestas a la solución: Si/No, Comprar/Vender, o lo que sea que estemos clasificando. Otro ejemplo son los populares juegos de adivinanza:
+
+1\. ¿Animal ó vegetal? -Animal
+
+2\. ¿Tiene cuatro patas? -Si
+
+3\. ¿Hace guau? -Si
+
+4\. -Es un perro!
+
+Supongamos que tenemos atributos como Género con valores "hombre ó mujer" y edad en rangos: "menor de 18 ó mayor de 18" para tomar una decisión.
+
+Podríamos crear un árbol en el que dividamos primero por género y luego subdividir por edad. Ó podría ser al revés: primero por edad y luego por género. **El algoritmo es quien** analizando los datos y las salidas -por eso es supervisado!- **decidirá** la mejor forma de hacer las divisiones (splits) entre nodos. Tendrá en cuenta de qué manera lograr una predicción (clasificación ó regresión) con mayor probabilidad de acierto.
+
+Parece sencillo, no? Pensemos que si tenemos 10 atributos de entrada cada uno con 2 o más valores posibles, las combinaciones para decidir el mejor árbol serían cientos ó miles... Esto ya no es un trabajo para hacer artesanalmente. Y ahí es donde este algoritmo cobra importancia, pues él nos devolverá el árbol óptimo para la toma de decisión más acertada desde un punto de vista probabilístico.
+
+## ¿Cómo funciona?
+
+Para obtener el árbol óptimo y valorar cada subdivisión entre todos los árboles posibles y conseguir el nodo raiz y los subsiguientes, el algoritmo deberá medir de alguna manera las predicciones logradas y valorarlas para comparar de entre todas y obtener la mejor.
+
+Para medir y valorar, utiliza diversas funciones, siendo las más conocidas y usadas los "[Indice gini](https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity)" y "[Ganancia de información](https://en.wikipedia.org/wiki/Information_gain_(decision_tree))" que utiliza la denominada "[entropía](https://es.wikipedia.org/wiki/Entrop%C3%ADa_(informaci%C3%B3n))". La división de nodos continuará hasta que lleguemos a la profundidad máxima posible del árbol ó se limiten los nodos a una cantidad mínima de muestras en cada hoja. A continuación describiremos muy brevemente cada una de las estrategias nombradas:
+
+### Indice Gini
+
+Se utiliza para atributos con valores continuos (precio de una casa). Esta función de coste mide el "grado de impureza" de los nodos, es decir, cuán desordenados o mezclados quedan los nodos una vez divididos. Deberemos **minimizar** ese GINI index.
+
+### Ganancia de información:
+
+Se utiliza para atributos categóricos (como en hombre/mujer). Este criterio intenta estimar la información que aporta cada atributo basado en la "teoría de la información". Para medir la aleatoriedad de incertidumbre de un valor aleatorio de una variable "X" se define la Entropia. Al obtener la medida de entropía de cada atributo, podemos calcular la ganancia de información del árbol. Deberemos maximizar esa ganancia.
+
+### Hiperparámetros:
+
+-   **Minimum number of splits**: Mínimo número de observaciones existentes para dividir un nodo. Valor por defecto 20.
+
+-   **Complexity parameter (cp)**: Valor típico: 0.01. Indica que si el modelo no mejora el modelo en, al menos un 1 %, no realiza más divisiones. Reduce la complejidad computacional y previene el sobreajuste.
+
+-   **Maximum depth**: Valor por defecto 30. Mide la profundidad máxima entre el nodo raiz (profundidad 0) y el nodo más extremo (hojas).
+
+# Resumen CARTs (Classification and Regression Trees)
+
+https://www.ibm.com/es-es/topics/decision-trees
+
+-   No se describen mediante ecuaciones.
+
+-   No tienen como objetivo estimar parámetros lineales ni discutir su significancia estadística.
+
+-   Se realiza un proceso de división recursiva de los datos, según los hiperparámetros definidos para minimizar los errores usando criterios como el índice Gini y la Ganancia de información.
+
+-   Utilizan diferentes criterios de estimación dependiendo de la naturaleza de la variable dependiente. Se dividen en:
+
+    -   Árboles de Clasificación: Cuando la variable dependiente es categórica (dicotómica o politómica).
+
+    -   Árboles de Regresión: Cuando la variable dependiente es métrica (contínua). No utilizan el procedimiento paso a paso.
+
+-   Pueden tener hiperparámetros
+
+## Ejemplo: Árbol de clasificación
+
+Tenemos un dataset `triathlon`, basado en una encuesta a 200 atletas amateur que han competido en un triatlón sprint. La variable objetivo es `finished` e indica si han sido o no capaces de terminarlo. Las variables predictoras son:
+
+-   `carbs_consumption`: Ingesta media de carbohidratos (en gr) por kg de peso corporal durante la preparación.
+-   `training_days`: Binaria. Indica si el atleta se ha entrenado durante más de 90 días antes de la competición.
+
+```{r}
+load("triathlon.RData")
+```
+
+```{r}
+summary(triathlon)
+```
+
+```{r}
+# rpart utiliza validación cruzada con criterios random
+set.seed(1) # necesario para reproductividad
+
+CART_triathlon <- rpart(formula = finished ~ carbs_consumption + training_days,
+                        data = triathlon,
+                        control = rpart.control(minsplit = 20,
+                                                cp = 0.01,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+```
+
+-   `control`: Indica qué hiperparámetros se usarán.
+-   `parms`: Indica el criterio para medir la impureza de los datos. *"information"* indica entropía, mientras que *"gini"* sería para el índice Gini.
+-   `method`: *"class"* Indica que estamos usando un árbol de clasificación. *"anova"* indicaría un problema de regresión
+
+```{r}
+rpart.plot(x = CART_triathlon,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+```
+
+```{r}
+printcp(CART_triathlon)
+```
+
+```{r}
+predicciones <- (predict(object = CART_triathlon,
+                                newdata = triathlon,
+                                type = "prob"))
+triathlon$fitted_probs <- predicciones[,2] 
+```
+
+```{r}
+ROC <- roc((triathlon$finished == "yes"), triathlon$fitted_probs)
+plot(ROC, col = "blue")
+```
+
+```{r}
+auc(ROC)
+```
+
+```{r}
+#| code-fold: false
+# Matriz de confusión manual:
+outcomes <- table(1*(triathlon$finished == "yes"), round(triathlon$fitted_probs))
+outcomes
+```
+
+```{r}
+confusion <- conf_mat(outcomes)
+summary(confusion, event_level = "second")
+```
+
+## Ejercicio: Churn (BayesQR)
+
+Realiza un clasificador utilizando un árbol de decisión para el dataset `bayesQR::Churn`
+
+-   Dibuja la curva ROC e imprime el área bajo la curva
+-   Imprime la matriz de confusión
+-   Imprime las métricas principales en base a la matriz de confusión
+
+```{r}
+data(Churn)
+
+summary(Churn)
+
+set.seed(1) # necesario para reproductividad
+
+CART_churn <- rpart(formula = churn ~ lor + recency,
+                        data = Churn,
+                        control = rpart.control(minsplit = 20,
+                                                cp = 0.01,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+
+
+rpart.plot(x = CART_churn,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+
+printcp(CART_churn)
+
+predicciones <- (predict(object = CART_churn,
+                                newdata = Churn,
+                                type = "prob"))
+Churn$fitted_probs <- predicciones[,2] 
+
+ROC <- roc((Churn$churn == 0), Churn$fitted_probs)
+plot(ROC, col = "blue")
+
+auc(ROC)
+
+outcomes <- table(1*(Churn$churn == 0), round(Churn$fitted_probs))
+outcomes
+```
+
+## Ejercicio: Modificación de hiperparámetros
+
+Cambia cp = 0.01 por cp = 0.005 en el modelo del triatlón y en Churn. Vuelve a calcular las métricas y a dibujar el árbol. ¿Mejoran las métricas del modelo?
+
+Cambia cp a 0 y el número mínimo de divisiones a 2. ¿Mejoran las métricas? ¿Qué consecuencia negativa podría tener?
+
+```{r}
+data(Churn)
+
+summary(Churn)
+
+set.seed(1) # necesario para reproductividad
+
+CART_churn <- rpart(formula = churn ~ lor + recency,
+                        data = Churn,
+                        control = rpart.control(minsplit = 20,
+                                                cp = 0.005,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+
+
+rpart.plot(x = CART_churn,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+
+printcp(CART_churn)
+
+predicciones <- (predict(object = CART_churn,
+                                newdata = Churn,
+                                type = "prob"))
+Churn$fitted_probs <- predicciones[,2] 
+
+ROC <- roc((Churn$churn == 0), Churn$fitted_probs)
+plot(ROC, col = "blue")
+
+auc(ROC)
+
+outcomes <- table(1*(Churn$churn == 0), round(Churn$fitted_probs))
+outcomes
+
+#-------------------------------------------
+
+CART_churn <- rpart(formula = churn ~ lor + recency,
+                        data = Churn,
+                        control = rpart.control(minsplit = 2,
+                                                cp = 0,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+
+
+rpart.plot(x = CART_churn,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+
+printcp(CART_churn)
+
+predicciones <- (predict(object = CART_churn,
+                                newdata = Churn,
+                                type = "prob"))
+Churn$fitted_probs <- predicciones[,2] 
+
+ROC <- roc((Churn$churn == 0), Churn$fitted_probs)
+plot(ROC, col = "blue")
+
+auc(ROC)
+
+outcomes <- table(1*(Churn$churn == 0), round(Churn$fitted_probs))
+outcomes
+
+
+#--------------------------------
+
+set.seed(1) # necesario para reproductividad
+
+CART_triathlon <- rpart(formula = finished ~ carbs_consumption + training_days,
+                        data = triathlon,
+                        control = rpart.control(minsplit = 20,
+                                                cp = 0.005,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+
+
+set.seed(1) # necesario para reproductividad
+
+rpart.plot(x = CART_triathlon,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+
+
+predicciones <- (predict(object = CART_triathlon,
+                                newdata = triathlon,
+                                type = "prob"))
+triathlon$fitted_probs <- predicciones[,2]
+
+ROC <- roc((triathlon$finished == "yes"), triathlon$fitted_probs)
+plot(ROC, col = "blue")
+
+#------------------------------------
+
+CART_triathlon <- rpart(formula = finished ~ carbs_consumption + training_days,
+                        data = triathlon,
+                        control = rpart.control(minsplit = 2,
+                                                cp = 0,
+                                                maxdepth = 30),
+                        parms = list(split = "information"), # list(split = "information"),
+                        method = "class")
+
+rpart.plot(x = CART_triathlon,
+           type = 5, 
+           box.palette = "RdGn", 
+           extra = 2)
+
+predicciones <- (predict(object = CART_triathlon,
+                                newdata = triathlon,
+                                type = "prob"))
+triathlon$fitted_probs <- predicciones[,2]
+
+ROC <- roc((triathlon$finished == "yes"), triathlon$fitted_probs)
+plot(ROC, col = "blue")
+```

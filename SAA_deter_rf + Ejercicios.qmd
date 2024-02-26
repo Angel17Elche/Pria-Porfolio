@@ -1,0 +1,325 @@
+---
+title: "Unidad 3(Random Forest): Determinación de Sistemas de Aprendizaje automático"
+subtitle: "Random Forest"
+autor: "Jesús Turpín"
+format:
+  html:
+    code-fold: true
+editor: visual
+toc: true
+toc-depth: 3
+bibliography: SAA_U3_refs.bib
+---
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+# library(rpart)
+# library(rpart.plot)
+# library(bayesQR)
+library(broom)
+library(corrplot)
+# library(yardstick)
+library(pROC)
+# library(ggrepel)
+# library(purrr)
+library(plotly)
+library(randomForest)
+library(skimr)
+library(MASS)
+```
+
+## Algoritmos de Machine Learning
+
+-   Regresión Lineal
+
+-   Regresión Logística
+
+-   Árboles de Decisión
+
+-   **Random Forest**
+
+-   k Nearest Neighbor (KNN)
+
+-   SVM
+
+-   Naive Bayes
+
+-   Clustering jerárquico
+
+-   K-Means
+
+-   PCA
+
+-   Redes Neuronales
+
+-   Aprendizaje profundo
+
+## Bibliografía
+
+-   @aprende_ml_espanol
+
+-   @FAVERO2023259
+
+-   @JoaquinAR2024RPubs
+
+## Aproximación a la idea de "Bosque aleatorio"
+
+Imagínate que tienes un grupo de amigos que te ayudan a tomar decisiones. Cada uno de ellos te da su opinión basada en sus experiencias y conocimientos. Al final, decides basándote en la mayoría de sus opiniones. Random Forest funciona de manera similar, pero en lugar de amigos, tienes un conjunto de árboles de decisión.
+
+Cada árbol se entrena con una muestra aleatoria de los datos (con reemplazo) y al hacer una predicción, cada árbol vota. La predicción final es el resultado de la mayoría de los votos de todos los árboles. Esta técnica mejora la precisión de la predicción y controla el sobreajuste, que es un problema común cuando se usa un solo árbol de decisión.
+
+### Ensemble
+
+Las técnicas de *ensemble* combinan múltiples modelos en uno nuevo con el objetivo equilibrar sesgo vs varianza, consiguiendo así mejores predicciones que cualquiera de los modelos individuales originales. Dos de los tipos de ensemble más utilizados son:
+
+**Bagging**: Se ajustan múltiples modelos, cada uno con un subconjunto distinto de los datos de entrenamiento. Para predecir, todos los modelos que forman el agregado participan aportando su predicción. Como valor final, se toma la media de todas las predicciones (variables continuas) o la clase más frecuente (variables categóricas). **Random Forest está dentro de esta categoría**.
+
+**Boosting**: Se ajustan secuencialmente múltiples modelos sencillos, llamados weak learners, de forma que cada modelo aprende de los errores del anterior. Como valor final, al igual que en bagging, se toma la media de todas las predicciones (variables continuas) o la clase más frecuente (variables cualitativas). Tres de los métodos de boosting más empleados son AdaBoost, Gradient Boosting y Stochastic Gradient Boosting. Veremos alguno de ellos en la unidad siguiente.
+
+## Fundamentos de Random Forest
+
+Random Forest es un algoritmo de aprendizaje *ensemble*, lo que significa que combina las predicciones de varios modelos (en este caso, árboles de decisión) para generar una salida más precisa y robusta. Se basa en dos conceptos clave del ML: el **bagging** (bootstrap aggregating) y la **selección aleatoria de variables predictivas**.
+
+Dado que su origen son los árboles de decisión, se utiliza tanto para problemas de clasificación como de regresión. En clasificación, el resultado se obtiene con la moda de la clase en el conjunto de árboles o en probabilidades como la media de las probabilidades de cada clase del conjunto de árboles. En regresión se usa la media obtenida en cada árbol.
+
+### Bagging
+
+Este método mejora la estabilidad y precisión de los algoritmos de machine learning. Consiste en generar múltiples conjuntos de datos de entrenamiento mediante muestreo aleatorio con reemplazo (bootstrap), entrenar un modelo en cada uno de estos conjuntos y luego combinar sus predicciones. En el caso de Random Forest, cada conjunto de datos de entrenamiento se usa para entrenar un árbol de decisión diferente.
+
+### Selección aleatoria de predictores
+
+Al construir cada árbol, en cada división o nodo, en lugar de buscar la mejor característica entre todas las posibles para dividir el conjunto de datos, Random Forest selecciona un subconjunto aleatorio de características y busca la mejor entre este subconjunto. Esto añade diversidad a los modelos, aumentando la robustez del conjunto total y haciéndolo menos sensible a outliers.
+
+Antes de cada división, se seleccionan aleatoriamente m predictores de un total de p. La diferencia en el resultado dependerá del valor m escogido. Si m=p, los resultados de random forest y bagging son equivalentes.
+
+Algunas recomendaciones son:
+
+-   La raíz cuadrada del número total de predictores para problemas de clasificación. $m \approx \sqrt{p}$
+
+-   Un tercio del número de predictores para problemas de regresión. $m\approx \frac{p}3$
+
+-   Si los predictores están muy correlacionados, valores pequeños de m consiguen mejores resultados.
+
+Aumentar el número de árboles, no produce overfit y mejora el modelo hasta cierto número en el que se estabiliza. No tiene sentido seguir aumentando, pues se debe buscar reducir el coste computacional.
+
+## Paquete randomForest e Hiperparámetros
+
+```{r}
+#install.packages("randomForest")
+install.packages("ranger")
+```
+
+En R, el paquete que tradicionalmente se ha usado para este algoritmo es `randomForest`. En la documentación de la función con el mismo nombre podemos ver que algunos de los atributos son hiperparámetros.
+
+En la actualidad, el paquete `ranger`, mejora la implementación original e incluye más opciones de configuración.
+
+-   `ntree`: Número de árboles (n_estimators). Más árboles aumentan la precisión pero también el costo computacional. Por defecto, suele estar configurado en 500
+
+-   Profundidad máxima del árbol (max_depth): La profundidad máxima de cada árbol. Limitar la profundidad puede ayudar a prevenir el sobreajuste. `maxnodes`
+
+-   `mtry`: Número máximo de variables predictoras (max_features). El número de características a considerar cuando se busca la mejor división.
+
+-   `nodesize`: Mínimo número de muestras para dividir (min_samples_split): El número mínimo de muestras que debe tener un nodo antes de que pueda ser dividido.
+
+## Regresión con Random Forest
+
+```{r}
+data("Boston")
+```
+
+```{r}
+glimpse(Boston)
+```
+
+```{r}
+set.seed(131)
+boston.rf <- randomForest(medv ~ ., data=Boston)
+print(boston.rf)
+```
+
+```{r}
+residuos <- Boston$medv - boston.rf$predicted
+```
+
+```{r}
+MSE <- sum(residuos**2)/(nrow(Boston))
+RMSE <- sqrt(MSE)
+RMSE
+```
+
+## Clasificación con Random Forest
+
+```{r}
+bank <- read.csv("bank.csv")
+```
+
+```{r}
+glimpse(bank)
+```
+
+```{r}
+bank_pp <- bank %>%
+  mutate_if(is.character, as.factor) 
+```
+
+```{r}
+glimpse(bank_pp)
+```
+
+```{r}
+set.seed(123)
+bank.rfmdl <- randomForest(deposit ~ ., data = bank_pp, ntree = 250 )
+```
+
+```{r}
+print(bank.rfmdl)
+```
+
+```{r}
+deposits <- bank_pp$deposit == "yes"
+```
+
+```{r}
+predicted_probs <- predict(bank.rfmdl, data = bank_pp, type = "prob")
+predicted_probs <- predicted_probs[,2]
+```
+
+```{r warning=FALSE, message=FALSE}
+ROC <- roc(deposits, predicted_probs)
+plot(ROC, col = "blue")    
+text(0.5, 0.2, paste("AUC =", round(auc(ROC), 3)))
+       
+```
+
+## Ejercicios
+
+1.- Repite los ejercicios de regresión y clasificación usando el paquete `ranger` y/o `h2o`. Busca información y explica las diferencias principales en los flujos de trabajo (funciones y parámetros).
+
+```{r}
+library(ranger)
+##Regresion
+set.seed(131)
+boston.rf <- ranger(medv ~ ., data = Boston, num.trees = 500, mtry = floor(sqrt(ncol(Boston))), min.node.size = 1, replace = TRUE, sample.fraction = 1.0)
+print(boston.rf)
+
+
+residuos <- Boston$medv - predict(boston.rf, data = Boston)$predictions
+
+
+MSE <- sum(residuos^2) / nrow(Boston)
+RMSE <- sqrt(MSE)
+RMSE
+
+```
+
+```{r}
+##Clasificacion
+
+library(ranger)
+library(dplyr)
+
+# Convertir variables categóricas a factor
+bank_pp <- bank %>%
+  mutate_if(is.character, as.factor) 
+
+# Entrenar el modelo
+set.seed(123)
+bank.rfmdl <- ranger(deposit ~ ., data = bank_pp, num.trees = 250)
+
+# Obtener las probabilidades predichas
+predicted_probs <- predict(bank.rfmdl, data = bank_pp, type = "response")
+
+# Extraer las probabilidades de depósito "yes"
+predicted_probs <- as.data.frame(predicted_probs$predictions)$"yes"
+
+```
+
+2.- Dado el siguiente código:
+
+```{r eval=FALSE}
+num_trees <- seq(50, 600, by=50) # Evaluar modelos con diferentes números de árboles
+oob_error <- numeric(length(num_trees)) # Para almacenar el error OOB de cada modelo
+
+# Bucle para entrenar modelos y recoger errores OOB
+for (i in seq_along(num_trees)) {
+  set.seed(123) # Para reproducibilidad
+  rf_model <- randomForest(deposit ~ ., data=bank_pp, ntree=num_trees[i], mtry=4, keep.forest=FALSE)
+  # Acceder al último valor del error OOB
+  oob_error[i] <- rf_model$err.rate[length(rf_model$err.rate)]
+}
+
+# Creación de un dataframe para los resultados
+results <- data.frame(num_trees, oob_error)
+
+# Gráfico de cómo converge el error OOB con diferentes números de árboles
+ggplot(results, aes(x=num_trees, y=oob_error)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(title="Convergencia del Error OOB en función del Número de Árboles",
+       x="Número de Árboles",
+       y="Error OOB")
+```
+
+Encuentra el número óptimo de árboles a partir del cual los resultados convergen y no se mejora por incrementar el número de árboles. Repite el código para el algoritmo de regresión.
+
+```{r}
+num_trees <- seq(50, 300, by=50) # Evaluar modelos con diferentes números de árboles
+oob_error <- numeric(length(num_trees)) # Para almacenar el error OOB de cada modelo
+
+# Bucle para entrenar modelos y recoger errores OOB
+for (i in seq_along(num_trees)) {
+  set.seed(123) # Para reproducibilidad
+  rf_model <- randomForest(deposit ~ ., data=bank_pp, ntree=num_trees[i], mtry=4, keep.forest=FALSE)
+  # Acceder al último valor del error OOB
+  oob_error[i] <- rf_model$err.rate[length(rf_model$err.rate)]
+}
+
+# Creación de un dataframe para los resultados
+results <- data.frame(num_trees, oob_error)
+
+# Gráfico de cómo converge el error OOB con diferentes números de árboles
+ggplot(results, aes(x=num_trees, y=oob_error)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(title="Convergencia del Error OOB en función del Número de Árboles",
+       x="Número de Árboles",
+       y="Error OOB")
+
+
+#El punto apartir de 100 arboles es cuando no se mejora dado que la pendiente del error hasta 100 en mas pronunciada que en el resto.
+```
+
+3.- Con la ayuda de chatGPT, intenta optimizar el parámetro ntree, usando el paquete `ranger` y/o `h2o`. ¿Mejora el rendimiento?
+
+```{r}
+#install.packages('tidymodels')
+library(ranger)
+library(ggplot2)
+
+# Definir la secuencia de números de árboles para evaluar
+num_trees <- seq(50, 300, by = 50)
+
+# Almacenar los resultados de la validación cruzada
+oob_error <- numeric(length(num_trees))
+
+# Bucle para ajustar modelos y recoger errores OOB
+for (i in seq_along(num_trees)) {
+  set.seed(123)  # Fijar semilla para reproducibilidad
+  rf_model <- ranger(deposit ~ ., data = bank_pp, num.trees = num_trees[i], mtry = 4)
+  oob_error[i] <- rf_model$prediction.error
+}
+
+# Crear un dataframe para los resultados
+results <- data.frame(num_trees, oob_error)
+
+# Graficar cómo converge el error OOB con diferentes números de árboles
+ggplot(results, aes(x = num_trees, y = oob_error)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "Convergencia del Error OOB en función del Número de Árboles",
+       x = "Número de Árboles",
+       y = "Error OOB")
+```

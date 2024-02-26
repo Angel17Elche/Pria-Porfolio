@@ -1,0 +1,197 @@
+---
+title: "Unidad 3(Random Forest): Determinación de Sistemas de Aprendizaje automático"
+subtitle: "Random Forest"
+autor: "Jesús Turpín"
+format:
+  html:
+    code-fold: true
+editor: visual
+toc: true
+toc-depth: 3
+bibliography: SAA_U3_refs.bib
+---
+
+```{r warning=FALSE, message=FALSE}
+#install.packages('e1071')
+library(kknn)
+
+# library(rpart)
+# library(rpart.plot)
+# library(bayesQR)
+library(broom)
+library(corrplot)
+# library(yardstick)
+library(pROC)
+# library(ggrepel)
+# library(purrr)
+library(plotly)
+library(randomForest)
+library(skimr)
+library(MASS)
+library(tidyverse)
+library(e1071)
+```
+
+## Algoritmos de Machine Learning
+
+-   Regresión Lineal
+
+-   Regresión Logística
+
+-   Árboles de Decisión
+
+-   Random Forest
+
+-   k Nearest Neighbor (KNN)
+
+-   **SVM**
+
+-   Naive Bayes
+
+-   Clustering jerárquico
+
+-   K-Means
+
+-   PCA
+
+-   Redes Neuronales
+
+-   Aprendizaje profundo
+
+# Algoritmo SVM para Clasificación y Regresión
+
+@JoaquinAR2024RPubssvm
+
+Las Máquinas de Soporte Vectorial (SVM) son una técnica de aprendizaje supervisado utilizada tanto para clasificación (SVC) como para regresión (SVR). En su forma más básica, el objetivo de SVM es encontrar un hiperplano en un espacio N-dimensional (N — el número de características) que clasifique claramente los puntos de datos.
+
+## SVM para Clasificación
+
+En clasificación, SVM busca el hiperplano que separa mejor las clases con el margen más amplio. Este hiperplano se define de tal manera que la distancia entre el hiperplano y el punto de datos más cercano de cada clase (vectores de soporte) es maximizada. Matemáticamente, si tenemos un conjunto de entrenamiento de puntos de datos $x_i$ con etiquetas $y_i$ donde $y_i \in \{1, -1\}$, el hiperplano se define como los puntos $x$ que satisfacen la ecuación $w \cdot x - b = 0$. Aquí, $w$ es el vector normal al hiperplano, y $b$ es el sesgo.
+
+## SVM para Regresión
+
+En regresión (SVR), el objetivo es encontrar un hiperplano que se ajuste lo mejor posible a los datos dentro de un margen ε, pero al mismo tiempo sea lo más plano posible. Esto se logra a través de un enfoque similar al de la clasificación, pero en este caso, el hiperplano se diseña para encajar dentro de un tubo ε que captura la mayoría de los puntos.
+
+## Preprocesamiento de Datos
+
+Es importante escalar las variables predictoras antes de aplicar SVM, ya que el algoritmo es sensible a las escalas de las características. Esto asegura que todas las características contribuyan equitativamente al modelo.
+
+## Ejemplo en R
+
+### Clasificación con SVM
+
+```{r}
+load("corruption.RData")
+glimpse(corruption)
+```
+
+# Algoritmo SVM para Clasificación y Regresión
+
+Las Máquinas de Soporte Vectorial (SVM) son una técnica de aprendizaje supervisado utilizada tanto para clasificación (SVC) como para regresión (SVR). En su forma más básica, el objetivo de SVM es encontrar un hiperplano en un espacio N-dimensional (N — el número de características) que clasifique claramente los puntos de datos.
+
+## SVM para Clasificación
+
+En clasificación, SVM busca el hiperplano que separa mejor las clases con el margen más amplio. Este hiperplano se define de tal manera que la distancia entre el hiperplano y el punto de datos más cercano de cada clase (vectores de soporte) es maximizada. Matemáticamente, si tenemos un conjunto de entrenamiento de puntos de datos $x_i$ con etiquetas $y_i$ donde $y_i \in \{1, -1\}$, el hiperplano se define como los puntos $x$ que satisfacen la ecuación $w \cdot x - b = 0$. Aquí, $w$ es el vector normal al hiperplano, y $b$ es el sesgo.
+
+## SVM para Regresión
+
+En regresión (SVR), el objetivo es encontrar un hiperplano que se ajuste lo mejor posible a los datos dentro de un margen ε, pero al mismo tiempo sea lo más plano posible. Esto se logra a través de un enfoque similar al de la clasificación, pero en este caso, el hiperplano se diseña para encajar dentro de un tubo ε que captura la mayoría de los puntos.
+
+## Preprocesamiento de Datos
+
+Es importante escalar las variables predictoras antes de aplicar SVM, ya que el algoritmo es sensible a las escalas de las características. Esto asegura que todas las características contribuyan equitativamente al modelo.
+
+## Ventajas de SVM
+
+-   Alto rendimiento en espacios de alta dimensión.
+-   Efectivo en casos donde el número de dimensiones supera el número de muestras.
+-   Versátil, gracias a la función del kernel.
+
+## Desventajas de SVM
+
+-   Selección del kernel y sus parámetros puede ser complicado.
+-   No es adecuado para grandes conjuntos de datos debido a su alta complejidad computacional.
+-   Resultados difíciles de interpretar en comparación con algunos modelos más simples.
+
+## Comparación con Otros Modelos
+
+-   CART y RandomForest: Más interpretables y pueden manejar mejor los datos no lineales y las interacciones.
+-   KNN: SVM es más eficaz en espacios de alta dimensión pero KNN es más simple y fácil de implementar.
+-   Modelos de regresión logística: Menos complejos y ofrecen resultados más interpretables, pero SVM puede manejar mejor los espacios de características complejos y no lineales.
+
+## Ejemplo en R
+
+### Clasificación con SVM
+
+```{r}
+# Preprocesamiento
+load("corruption.RData")
+corruption <- corruption %>%
+  dplyr::select(-country) %>%
+  # escalado
+  mutate_if(is.numeric, scale) 
+```
+
+```{r}
+model_svc <- svm(emergent_country ~ ., data = corruption)
+```
+
+```{r}
+predictions_svc <- predict(model_svc, corruption)
+```
+
+## Ejercicios
+
+1.  Completar el código para dibujar la curva ROC, mostrar matriz de confusión y resto de métricas
+
+    ```{r}
+    # Cargar librerías
+    library(e1071) # Para SVM
+    library(pROC)  # Para curva ROC
+    library(caret) # Para matriz de confusión y otras métricas
+
+    # Preprocesamiento
+    load("corruption.RData")
+    corruption <- corruption %>%
+      dplyr::select(-country) %>%
+      mutate_if(is.numeric, scale)
+
+    # Dividir el conjunto de datos en entrenamiento y prueba
+    set.seed(123)
+    train_index <- createDataPartition(corruption$emergent_country, p = 0.8, list = FALSE)
+    train_data <- corruption[train_index, ]
+    test_data <- corruption[-train_index, ]
+
+    # Entrenamiento del modelo SVM
+    model_svc <- svm(emergent_country ~ ., data = train_data)
+
+    # Predicciones en el conjunto de prueba
+    predictions_svc <- predict(model_svc, test_data)
+
+    # Matriz de confusión
+    confusion_matrix <- confusionMatrix(predictions_svc, test_data$emergent_country)
+
+    # Métricas de evaluación
+    eval_metrics <- confusion_matrix$byClass
+    # Calcular las probabilidades para la curva ROC
+    roc_probs <- predict(model_svc, test_data, probability = TRUE)
+
+    # Calcular las probabilidades para la curva ROC
+    roc_probs <- predict(model_svc, test_data, probability = TRUE)
+
+    # Calcular la curva ROC
+    #roc_curve <- roc(response = ifelse(test_data$emergent_country == "yes", 1, 0),
+                     predictor = roc_probs)
+
+    # Graficar la curva ROC
+    plot(roc_curve, main = "Curva ROC para SVM", col = "blue")
+    abline(a = 0, b = 1, lty = 2, col = "red")
+
+    # Calcular la matriz de confusión y métricas de evaluación
+    predictions <- ifelse(roc_probs$yes > 0.5, "yes", "no")
+    confusion_matrix <- confusionMatrix(predictions, test_data$emergent_country)
+    print(confusion_matrix)
+
+    ```
+
+2.  Implementar el ejercicio para el caso de regresión, usando como variable objetivo cpi

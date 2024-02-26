@@ -1,0 +1,222 @@
+---
+title: "Unidad 3(Random Forest): Determinación de Sistemas de Aprendizaje automático"
+subtitle: "Random Forest"
+autor: "Jesús Turpín"
+format:
+  html:
+    code-fold: true
+editor: visual
+toc: true
+toc-depth: 3
+bibliography: SAA_U3_refs.bib
+---
+
+```{r warning=FALSE, message=FALSE}
+#install.packages('kknn')
+library(kknn)
+
+# library(rpart)
+# library(rpart.plot)
+# library(bayesQR)
+library(broom)
+library(corrplot)
+library(yardstick)
+library(pROC)
+# library(ggrepel)
+# library(purrr)
+library(plotly)
+library(randomForest)
+library(skimr)
+library(MASS)
+library(tidyverse)
+```
+
+## Algoritmos de Machine Learning
+
+-   Regresión Lineal
+
+-   Regresión Logística
+
+-   Árboles de Decisión
+
+-   Random Forest
+
+-   **k Nearest Neighbor (KNN)**
+
+-   SVM
+
+-   Naive Bayes
+
+-   Clustering jerárquico
+
+-   K-Means
+
+-   PCA
+
+-   Redes Neuronales
+
+-   Aprendizaje profundo
+
+## Introducción al Algoritmo KNN
+
+KNN es un algoritmo de aprendizaje supervisado que puede usarse tanto para clasificación como para regresión. La idea principal detrás de KNN es simple: para predecir la salida para un nuevo dato, el algoritmo busca en los datos de entrenamiento los K vecinos más cercanos a este nuevo dato.
+
+La predicción se hace entonces por mayoría de votos (clasificación) o promedio (regresión) de los K vecinos más cercanos, donde K es un hiperparámetro a optimizar.
+
+La "cercanía" se mide comúnmente mediante la distancia euclídea, aunque se pueden usar otras métricas de distancia. La fórmula de la distancia euclídea entre dos puntos, p y q, en un espacio n-dimensional es:
+
+$$ d(p, q) = \sqrt{(p_1 - q_1)^2 + (p_2 - q_2)^2 +  ... + (p_n - q_n)^2} $$ \### Ventajas de KNN
+
+-   Simplicidad: Fácil de entender e implementar.
+-   Flexibilidad: No hace suposiciones sobre la forma de los datos.
+-   Eficacia en datasets pequeños: Muy útil en casos con menos datos.
+
+### Desventajas de KNN
+
+-   Escalabilidad: No es eficiente con datasets grandes.
+-   Necesidad de preprocesamiento: Sensible a la escala de las variables y requiere codificación de variables categóricas.
+
+```{r}
+# Gráfico de las variables originales vs. escalado estándar
+load("corruption.RData")
+ggplot(corruption) +
+  geom_point(aes(x=age/10, y=hours/10), color="blue", alpha=0.5) +
+  geom_point(aes(x=scale(age), y=scale(hours)), color="red", alpha=0.5) +
+  labs(title="Comparación de Escalado vs variables originales (entre 10)",
+       x="Edad (azul: original, rojo: estándar)",
+       y="Horas (azul: original, rojo: estándar)") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(corruption) +
+  geom_point(aes(x=age/10, y=hours/10), color="blue", alpha=0.5) +
+  geom_point(aes(x=scales::rescale(age), y=scales::rescale(hours)), color="green", alpha=0.5) +
+  labs(title="Comparación de Escalado Min-Max",
+       x="Edad (azul: original, verde: Min-Max)",
+       y="Horas (azul: original, verde: Min-Max)") +
+  theme_minimal()
+
+```
+
+-   Determinación de k: Elegir el número correcto de vecinos es crucial y puede ser difícil. Un valor muy bajo puede hacer que el modelo sea muy sensible al ruido en los datos, mientras que un valor muy alto puede hacer que sea demasiado general. No hay una regla fija para elegir k. Es un hiperparámetro a configurar.
+
+### Comparación con Otros Modelos
+
+-   Frente a CART y RandomForest: Estos modelos pueden manejar mejor las variables categóricas y son más interpretables. RandomForest, además, es menos sensible a las variables irrelevantes.
+
+-   Frente a modelos de regresión lineal: KNN puede capturar relaciones no lineales sin necesidad de especificar la forma de esta relación, mientras que los modelos lineales se limitan a relaciones lineales pero son más fáciles de interpretar y más rápidos computacionalmente.
+
+KNN se adapta bien a muchos problemas de regresión, especialmente cuando se entiende y se maneja adecuadamente el **preprocesamiento** de los datos.
+
+## Paquetes y opciones en R
+
+Existe una gran diversidad de paquetes donde se puede encontrar alguna función que implemente el algoritmo. En estos ejemplos trataremos con el paquete `kknn`, y en posteriores temas trabajaremos con librerías genéricas de ML que permiten aplicar diversas técnicas, como `caret` o `tidymodels`
+
+```{r}
+# install.packages("kknn")
+```
+
+### Ejemplo práctico de regresión con KNN
+
+```{r}
+load("corruption.RData")
+glimpse(corruption)
+```
+
+```{r}
+# Preprocesamiento
+corruption <- corruption %>%
+  dplyr::select(-country) %>%
+  # escalado
+  mutate(age = scale(age), hours = scale(hours)) %>%
+  # one hot encoding
+  mutate(emergent_country = ifelse(corruption$emergent_country == "yes", 1, 0)) 
+  
+```
+
+```{r}
+knnModel <- kknn(cpi ~ ., corruption, corruption, k=9)
+```
+
+```{r}
+rmse <- sqrt(mean((fitted(knnModel) - corruption$cpi)^2))
+print(paste("RMSE:", rmse))
+```
+
+```{r}
+# Calculamos R^2
+SST <- sum((corruption$cpi - mean(corruption$cpi))^2)
+SSE <- sum((corruption$cpi - fitted(knnModel))^2)
+r_squared <- 1 - (SSE/SST)
+print(paste("R^2:", r_squared))
+```
+
+### Ejemplo práctico de clasificación con KNN
+
+```{r}
+# Preprocesamiento
+load("corruption.RData")
+corruption <- corruption %>%
+  dplyr::select(-country) %>%
+  # escalado
+  mutate_if(is.numeric, scale) 
+```
+
+```{r}
+kknnResult <- kknn(emergent_country ~ ., train = corruption, test = corruption, k = 9, distance = 1, kernel = "optimal")
+```
+
+```{r}
+predictions <- fitted(kknnResult)
+predictions
+response <- corruption$emergent_country
+```
+
+```{r}
+probabilidades <- predict(kknnResult, corruption, corruption, type = "prob")
+probabilidades <- probabilidades[,2]
+```
+
+```{r}
+ROC <- roc((response == "yes"), probabilidades)
+plot(ROC, col = "blue")
+```
+
+```{r}
+auc(ROC)
+```
+
+```{r}
+#| code-fold: false
+# Matriz de confusión manual:
+outcomes <- table(1*(response == "yes"), round(probabilidades))
+outcomes
+```
+
+```{r}
+confusion <- conf_mat(outcomes)
+summary(confusion, event_level = "second")
+```
+
+### Ejercicio
+
+Trata de encontrar el mejor valor de k entre 5 y 18. Ten en cuenta que es un ejercicio didáctico, ya que los datasets son pequeños y además los modelos se se entrenan con todo el dataset, por lo que están sujetos a sobreajuste.
+
+```{r}
+load("corruption.RData")
+corruption <- corruption %>%
+  dplyr::select(-country) %>%
+  # escalado
+  mutate(age = scale(age), hours = scale(hours)) %>%
+  # one hot encoding
+  mutate(emergent_country = ifelse(corruption$emergent_country == "yes", 1, 0)) 
+  
+knnModel <- kknn(cpi ~ ., corruption, corruption, k=8)
+
+rmse <- sqrt(mean((fitted(knnModel) - corruption$cpi)^2))
+print(paste("RMSE:", rmse))
+
+
+#A mayor es el numero de vecinos mayor mas aumenta el rmse por lo tanto dado que k es el numero de vecinos a mas vecinos peor es la precision del modelo dado que aumenta. Hasta el 10 aumenta en un 0.03 aproximadamente y despues en 0.015.
+```

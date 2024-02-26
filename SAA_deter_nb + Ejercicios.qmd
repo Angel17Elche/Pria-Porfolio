@@ -1,0 +1,138 @@
+---
+title: "Unidad 3(Random Forest): Determinación de Sistemas de Aprendizaje automático"
+subtitle: "Random Forest"
+autor: "Jesús Turpín"
+format:
+  html:
+    code-fold: true
+editor: visual
+toc: true
+toc-depth: 3
+bibliography: SAA_U3_refs.bib
+---
+
+```{r warning=FALSE, message=FALSE}
+library(kknn)
+
+# library(rpart)
+# library(rpart.plot)
+# library(bayesQR)
+library(broom)
+library(corrplot)
+# library(yardstick)
+library(pROC)
+# library(ggrepel)
+# library(purrr)
+library(plotly)
+library(randomForest)
+library(skimr)
+library(MASS)
+library(tidyverse)
+library(e1071)
+```
+
+## Algoritmos de Machine Learning
+
+-   Regresión Lineal
+
+-   Regresión Logística
+
+-   Árboles de Decisión
+
+-   Random Forest
+
+-   k Nearest Neighbor (KNN)
+
+-   SVM
+
+-   **Naive Bayes**
+
+-   Clustering jerárquico
+
+-   K-Means
+
+-   PCA
+
+-   Redes Neuronales
+
+-   Aprendizaje profundo
+
+# Algoritmo Naive Bayes para Clasificación y Regresión
+
+El algoritmo Naive Bayes es una técnica de **clasificación** basada en el teorema de Bayes, con una suposición de independencia entre predictores. Es simple pero eficaz para grandes volúmenes de datos. Naive Bayes es utilizado en tareas de filtrado de spam, diagnóstico médico, y análisis de sentimientos. A pesar de su suposición simplificadora, funciona bien incluso cuando la independencia entre características no se mantiene completamente.
+
+## Naive Bayes para Clasificación
+
+Naive Bayes calcula la probabilidad de cada clase bajo la **suposición de independencia entre las variables**, y clasifica una nueva observación en la clase con la mayor probabilidad posterior. Matemáticamente, la probabilidad de una clase dado un vector de características (x) se calcula como:
+
+$$P(A|B) = \frac{P(B|A) P(A)}{P(B)}$$
+
+donde:
+
+-   $P(A|B)$ es la probabilidad de $A$ dado $B$,
+-   $P(B|A)$ es la probabilidad de $B$ dado $A$,
+-   $P(A)$ y $P(B)$ son las probabilidades de $A$ y $B$ independientemente de cada uno.
+
+Para la clasificación, Naive Bayes calcula la probabilidad de que un dato pertenezca a cada posible clase, dadas sus características, y asigna el dato a la clase con la mayor probabilidad. La suposición de que las características son independientes entre sí simplifica los cálculos pero no se ajusta a la realidad.
+
+## Ventajas de Naive Bayes
+
+-   Eficiencia: Rápido en términos de tiempo de entrenamiento y predicción.
+-   Escalabilidad: Maneja bien grandes volúmenes de datos.
+-   Simplicidad: Fácil de implementar y entender. Menos exigente en preprocesamiento
+
+## Desventajas de Naive Bayes
+
+-   Suposición de Independencia: La suposición de independencia entre características no siempre es válida.
+-   Rendimiento: Puede ser superado por modelos más complejos en tareas con relaciones complejas entre características.
+
+## Ejemplo de Clasificación en R
+
+```{r}
+library(e1071)
+load("corruption.RData")
+
+modelo <- naiveBayes(emergent_country ~ ., data = corruption)
+predicciones <- predict(modelo, corruption)
+
+# Resultados
+table(predicciones, corruption$emergent_country)
+```
+
+## Ejercicios
+
+1.  Completar el código para dibujar la curva ROC, mostrar matriz de confusión y resto de métricas
+
+```{r}
+library(e1071)
+library(pROC)
+library(caret)
+
+# Cargar datos
+load("corruption.RData")
+
+# Entrenar modelo Naive Bayes
+modelo <- naiveBayes(emergent_country ~ ., data = corruption)
+
+# Realizar predicciones en los datos de entrenamiento
+predicciones <- predict(modelo, corruption)
+
+# Calcular probabilidades para la curva ROC
+probabilidades <- predict(modelo, corruption, type = "raw")
+
+# Calcular la curva ROC
+roc_curve <- roc(ifelse(corruption$emergent_country == "yes", 1, 0), probabilidades[, "yes"])
+
+# Graficar la curva ROC
+plot(roc_curve, main = "Curva ROC para Naive Bayes", col = "blue")
+abline(a = 0, b = 1, lty = 2, col = "red")
+
+# Calcular la matriz de confusión
+confusion_matrix <- confusionMatrix(predicciones, corruption$emergent_country)
+print(confusion_matrix)
+
+# Calcular y mostrar otras métricas de evaluación
+eval_metrics <- confusion_matrix$byClass
+print(eval_metrics)
+
+```
